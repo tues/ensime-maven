@@ -13,7 +13,13 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package st.happy_camper.maven.plugins.ensime.sexpr
+package st.happy_camper.maven.plugins.ensime
+package sexpr
+
+import java.io.ByteArrayOutputStream
+
+import scalax.io.Codec
+import scalax.io.JavaConverters._
 
 /**
  * Represents S-Expression used by ENSIME configuration file.
@@ -26,3 +32,24 @@ case object SNil extends SExpr
 case class SKeyword(keyword: String) extends SExpr
 case class SList(list: Seq[SExpr]) extends SExpr
 case class SMap(map: Seq[(SKeyword, SExpr)]) extends SExpr
+
+/**
+ * A companion object for {@link SExpr}.
+ * @author ueshin
+ */
+object SExpr {
+
+  /**
+   * Treats SExpr as String.
+   */
+  implicit object SExprAsString extends As[SExpr, String] {
+
+    override def as(sexpr: SExpr) = {
+      val bytes = new ByteArrayOutputStream
+      val codec = Codec.default
+      val emitter = new SExprEmitter(bytes.asOutput)(codec)
+      emitter.emit(sexpr)
+      new String(bytes.toByteArray, codec.charSet)
+    }
+  }
+}

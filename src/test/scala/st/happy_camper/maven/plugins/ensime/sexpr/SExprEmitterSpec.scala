@@ -13,7 +13,8 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package st.happy_camper.maven.plugins.ensime.sexpr
+package st.happy_camper.maven.plugins.ensime
+package sexpr
 
 import java.io.ByteArrayOutputStream
 

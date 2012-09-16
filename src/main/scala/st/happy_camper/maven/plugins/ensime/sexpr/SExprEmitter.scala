@@ -13,15 +13,17 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package st.happy_camper.maven.plugins.ensime.sexpr
+package st.happy_camper.maven.plugins.ensime
+package sexpr
 
+import scalax.io.Codec
 import scalax.io.Output
 
 /**
  * Represents S-Expression emitter.
  * @author ueshin
  */
-class SExprEmitter(val out: Output) {
+class SExprEmitter(val out: Output)(implicit codec: Codec = Codec.default) {
 
   /**
    * Emits S-Expression.
