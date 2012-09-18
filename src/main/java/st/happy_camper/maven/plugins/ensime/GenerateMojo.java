@@ -18,15 +18,15 @@ package st.happy_camper.maven.plugins.ensime;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Generates ENSIME configuration files.
  * 
- * @goal generate
- * @requiresProject true
  * @author ueshin
  */
-public class EnsimeGenerateMojo extends AbstractMojo {
+@Mojo(name = "generate")
+public class GenerateMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
