@@ -29,42 +29,59 @@ class SExprEmitter(val out: Output)(implicit codec: Codec = Codec.default) {
    * Emits S-Expression.
    */
   def emit(sexpr: SExpr, indent: Int = 0): Unit = sexpr match {
-    case SString(value)    => out.write("\"" + value + "\"")
-    case STrue             => out.write("t")
-    case SNil              => out.write("nil")
+    case SString(value)    => emitSString(value)
+    case STrue             => emitSTrue
+    case SNil              => emitSNil
+    case SKeyword(keyword) => emitSKeyword(keyword)
+    case SList(list)       => emitSList(list, indent)
+    case SMap(map)         => emitSMap(map, indent)
+  }
 
-    case SKeyword(keyword) => out.write(":" + keyword)
+  @inline
+  private def emitSString(value: String) = out.write("\"" + value + "\"")
 
-    case SList(list) =>
-      out.write("(")
-      list.headOption.foreach { head =>
-        emit(head, indent + 1)
-        list.tail.foreach { sexpr =>
-          out.write("\n")
-          out.write(" " * (indent + 1))
-          emit(sexpr, indent + 1)
+  @inline
+  private def emitSTrue = out.write("t")
+
+  @inline
+  private def emitSNil = out.write("nil")
+
+  @inline
+  private def emitSKeyword(keyword: String) = out.write(":" + keyword)
+
+  @inline
+  private def emitSList(list: Seq[SExpr], indent: Int) = {
+    out.write("(")
+    list.headOption.foreach { head =>
+      emit(head, indent + 1)
+      list.tail.foreach { sexpr =>
+        out.write("\n")
+        out.write(" " * (indent + 1))
+        emit(sexpr, indent + 1)
+      }
+    }
+    out.write(")")
+  }
+
+  @inline
+  private def emitSMap(map: Seq[(SKeyword, SExpr)], indent: Int) = {
+    out.write("(")
+    map.headOption.foreach {
+      case (SKeyword(key), value) =>
+        emitSKeyword(key)
+        out.write("\n")
+        out.write(" " * (indent + 3))
+        emit(value, indent + 3)
+        map.tail.foreach {
+          case (SKeyword(key), value) =>
+            out.write("\n")
+            out.write(" " * (indent + 1))
+            emitSKeyword(key)
+            out.write("\n")
+            out.write(" " * (indent + 3))
+            emit(value, indent + 3)
         }
-      }
-      out.write(")")
-
-    case SMap(map) =>
-      out.write("(")
-      map.headOption.foreach {
-        case (key, value) =>
-          emit(key, indent + 1)
-          out.write("\n")
-          out.write(" " * (indent + 3))
-          emit(value, indent + 3)
-          map.tail.foreach {
-            case (key, value) =>
-              out.write("\n")
-              out.write(" " * (indent + 1))
-              emit(key, indent + 1)
-              out.write("\n")
-              out.write(" " * (indent + 3))
-              emit(value, indent + 3)
-          }
-      }
-      out.write(")")
+    }
+    out.write(")")
   }
 }
