@@ -37,27 +37,27 @@ class SExprSpec extends Specification {
   "SExprAsString" should {
 
     "treat S-String as String" in {
-      val sstring: SExpr = SString("string")
+      val sstring = SString("string")
       sstring.as[String] must equalTo("\"string\"")
     }
 
     "treat S-True as String" in {
-      val strue: SExpr = STrue
+      val strue = STrue
       strue.as[String] must equalTo("t")
     }
 
     "treat S-Nil as Strin" in {
-      val snil: SExpr = SNil
+      val snil = SNil
       snil.as[String] must equalTo("nil")
     }
 
     "treat S-Keyword as String" in {
-      val skeyword: SExpr = SKeyword("keyword")
+      val skeyword = SKeyword("keyword")
       skeyword.as[String] must equalTo(":keyword")
     }
 
     "treat S-List as String" in {
-      val slist: SExpr = SList(Seq(SString("string"), STrue, SMap(Seq(
+      val slist = SList(Seq(SString("string"), STrue, SMap(Seq(
         (SKeyword("key"), SString("value")))), SNil))
       slist.as[String] must equalTo("""("string"
                                       | t
@@ -67,12 +67,12 @@ class SExprSpec extends Specification {
     }
 
     "treat empty S-List as String" in {
-      val slist: SExpr = SList(Seq.empty)
+      val slist = SList(Seq.empty)
       slist.as[String] must equalTo("()")
     }
 
     "treat S-Map as String" in {
-      val smap: SExpr = SMap(Seq(
+      val smap = SMap(Seq(
         (SKeyword("key1"), SList(Seq(SString("string"), STrue))),
         (SKeyword("key2"), SList(Seq(SString("string"), SNil)))))
       smap.as[String] must equalTo("""(:key1
@@ -84,7 +84,7 @@ class SExprSpec extends Specification {
     }
 
     "treat empty S-Map as String" in {
-      val smap: SExpr = SMap(Seq())
+      val smap = SMap(Seq())
       smap.as[String] must equalTo("()")
     }
   }

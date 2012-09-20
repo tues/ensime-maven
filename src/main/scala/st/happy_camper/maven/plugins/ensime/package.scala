@@ -25,7 +25,7 @@ package object ensime {
    * Represents a converter from some type to another type.
    * @author ueshin
    */
-  trait As[A, B] {
+  trait As[-A, +B] {
 
     /**
      * Treats some type value as another type value.
