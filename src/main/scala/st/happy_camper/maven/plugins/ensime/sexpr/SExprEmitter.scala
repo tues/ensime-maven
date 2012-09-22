@@ -23,63 +23,70 @@ import scalax.io.Output
  * Represents S-Expression emitter.
  * @author ueshin
  */
-class SExprEmitter(val out: Output)(implicit codec: Codec = Codec.default) {
+class SExprEmitter(val output: Output)(implicit codec: Codec = Codec.default) {
 
   /**
    * Emits S-Expression.
    */
-  def emit(sexpr: SExpr, indent: Int = 0): Unit = sexpr match {
-    case SString(value)    => emitSString(value)
-    case STrue             => emitSTrue
-    case SNil              => emitSNil
-    case SKeyword(keyword) => emitSKeyword(keyword)
-    case SList(list)       => emitSList(list, indent)
-    case SMap(map)         => emitSMap(map, indent)
+  def emit(sexpr: SExpr): Unit = {
+    for (processor <- output.outputProcessor) {
+      emitSExpr(processor.asOutput, sexpr)
+    }
   }
 
   @inline
-  private def emitSString(value: String) = out.write("\"" + value + "\"")
+  private def emitSExpr(out: Output, sexpr: SExpr, indent: Int = 0): Unit = sexpr match {
+    case SString(value)    => emitSString(out, value)
+    case STrue             => emitSTrue(out)
+    case SNil              => emitSNil(out)
+    case SKeyword(keyword) => emitSKeyword(out, keyword)
+    case SList(list)       => emitSList(out, list, indent)
+    case SMap(map)         => emitSMap(out, map, indent)
+  }
 
   @inline
-  private def emitSTrue = out.write("t")
+  private def emitSString(out: Output, value: String) = out.write("\"" + value + "\"")
 
   @inline
-  private def emitSNil = out.write("nil")
+  private def emitSTrue(out: Output) = out.write("t")
 
   @inline
-  private def emitSKeyword(keyword: String) = out.write(":" + keyword)
+  private def emitSNil(out: Output) = out.write("nil")
 
   @inline
-  private def emitSList(list: Seq[SExpr], indent: Int) = {
+  private def emitSKeyword(out: Output, keyword: String) = out.write(":" + keyword)
+
+  @inline
+  private def emitSList(out: Output, list: Seq[SExpr], indent: Int) = {
     out.write("(")
     list.headOption.foreach { head =>
-      emit(head, indent + 1)
+      emitSExpr(out, head, indent + 1)
       list.tail.foreach { sexpr =>
         out.write("\n")
         out.write(" " * (indent + 1))
-        emit(sexpr, indent + 1)
+        emitSExpr(out, sexpr, indent + 1)
       }
     }
     out.write(")")
   }
 
   @inline
-  private def emitSMap(map: Seq[(SKeyword, SExpr)], indent: Int) = {
+  private def emitSMap(out: Output, map: Seq[(SKeyword, SExpr)], indent: Int) = {
     out.write("(")
     map.headOption.foreach {
       case (SKeyword(key), value) =>
-        emitSKeyword(key)
+        emitSKeyword(out, key)
         out.write("\n")
         out.write(" " * (indent + 3))
-        emit(value, indent + 3)
+        emitSExpr(out, value, indent + 3)
         map.tail.foreach {
           case (SKeyword(key), value) =>
             out.write("\n")
             out.write(" " * (indent + 1))
-            emitSKeyword(key)
+            emitSKeyword(out, key)
             out.write("\n")
             out.write(" " * (indent + 3))
-            emit(value, indent + 3)
+            emitSExpr(out, value, indent + 3)
         }
     }
     out.write(")")
