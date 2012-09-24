@@ -23,12 +23,12 @@ import scalax.io.Output
  * Represents S-Expression emitter.
  * @author ueshin
  */
-class SExprEmitter(val output: Output)(implicit codec: Codec = Codec.default) {
+class SExprEmitter(val sexpr: SExpr) {
 
   /**
    * Emits S-Expression.
    */
-  def emit(sexpr: SExpr): Unit = {
+  def emit(output: Output)(implicit codec: Codec = Codec.default): Unit = {
     for (processor <- output.outputProcessor) {
       emitSExpr(processor.asOutput, sexpr)
     }

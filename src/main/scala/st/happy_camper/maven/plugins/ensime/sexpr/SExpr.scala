@@ -47,8 +47,8 @@ object SExpr {
     override def as(sexpr: SExpr) = {
       val bytes = new ByteArrayOutputStream
       val codec = Codec.default
-      val emitter = new SExprEmitter(bytes.asOutput)(codec)
-      emitter.emit(sexpr)
+      val emitter = new SExprEmitter(sexpr)
+      emitter.emit(bytes.asOutput)(codec)
       new String(bytes.toByteArray, codec.charSet)
     }
   }

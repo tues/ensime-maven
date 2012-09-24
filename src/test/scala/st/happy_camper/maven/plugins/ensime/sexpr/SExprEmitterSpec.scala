@@ -39,7 +39,8 @@ class SExprEmitterSpec extends Specification {
     "emit S-String" in new Context {
       val sstring = SString("string")
 
-      emitter.emit(sstring)
+      val emitter = new SExprEmitter(sstring)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("\"string\"")
     }
@@ -47,7 +48,8 @@ class SExprEmitterSpec extends Specification {
     "emit S-True" in new Context {
       val strue = STrue
 
-      emitter.emit(strue)
+      val emitter = new SExprEmitter(strue)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("t")
     }
@@ -55,7 +57,8 @@ class SExprEmitterSpec extends Specification {
     "emit S-Nil" in new Context {
       val snil = SNil
 
-      emitter.emit(snil)
+      val emitter = new SExprEmitter(snil)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("nil")
     }
@@ -63,7 +66,8 @@ class SExprEmitterSpec extends Specification {
     "emit S-Keyword" in new Context {
       val skeyword = SKeyword("keyword")
 
-      emitter.emit(skeyword)
+      val emitter = new SExprEmitter(skeyword)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo(":keyword")
     }
@@ -72,7 +76,8 @@ class SExprEmitterSpec extends Specification {
       val slist = SList(Seq(SString("string"), STrue, SMap(Seq(
         (SKeyword("key"), SString("value")))), SNil))
 
-      emitter.emit(slist)
+      val emitter = new SExprEmitter(slist)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("""("string"
                                   | t
@@ -84,7 +89,8 @@ class SExprEmitterSpec extends Specification {
     "emit empty S-List" in new Context {
       val slist = SList(Seq.empty)
 
-      emitter.emit(slist)
+      val emitter = new SExprEmitter(slist)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("()")
     }
@@ -94,7 +100,8 @@ class SExprEmitterSpec extends Specification {
         (SKeyword("key1"), SList(Seq(SString("string"), STrue))),
         (SKeyword("key2"), SList(Seq(SString("string"), SNil)))))
 
-      emitter.emit(smap)
+      val emitter = new SExprEmitter(smap)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("""(:key1
                                   |   ("string"
@@ -107,7 +114,8 @@ class SExprEmitterSpec extends Specification {
     "emit empty S-Map" in new Context {
       val smap = SMap(Seq())
 
-      emitter.emit(smap)
+      val emitter = new SExprEmitter(smap)
+      emitter.emit(out.asOutput)
 
       out.toString must equalTo("()")
     }
@@ -116,7 +124,5 @@ class SExprEmitterSpec extends Specification {
   trait Context extends Scope {
 
     val out = new ByteArrayOutputStream
-
-    val emitter = new SExprEmitter(out.asOutput)
   }
 }
