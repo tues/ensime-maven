@@ -37,7 +37,7 @@ case class SubProject(
   sourceRoots: List[String],
   target: String,
   testTarget: String,
-  dependsOnModule: List[String],
+  dependsOnModules: List[String],
   formattingPreferences: Map[String, Either[String, Boolean]])
 
 /**
@@ -62,7 +62,7 @@ object SubProject {
         (SKeyword("source-roots") -> SList(subproject.sourceRoots.map(SString(_)))),
         (SKeyword("target") -> SString(subproject.target)),
         (SKeyword("test-target") -> SString(subproject.testTarget)),
-        (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModule.map(SString(_)))),
+        (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModules.map(SString(_)))),
         (SKeyword("formatting-prefs") -> SMap(
           subproject.formattingPreferences.map {
             case (key, Left(value)) =>
