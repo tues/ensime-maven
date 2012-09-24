@@ -15,6 +15,8 @@
  */
 package st.happy_camper.maven.plugins
 
+import scala.language.implicitConversions
+
 /**
  * An ensime package object.
  * @author ueshin

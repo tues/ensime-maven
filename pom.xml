@@ -211,6 +211,13 @@
 							</goals>
 						</execution>
 					</executions>
+					<configuration>
+						<args>
+							<arg>-unchecked</arg>
+							<arg>-deprecation</arg>
+							<arg>-feature</arg>
+						</args>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
