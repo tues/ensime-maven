@@ -15,21 +15,51 @@
  */
 package st.happy_camper.maven.plugins.ensime;
 
+import java.io.File;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Generates ENSIME configuration files.
  * 
  * @author ueshin
  */
-@Mojo(name = "generate")
+@Mojo(name = "generate", requiresProject = true, requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
 public class GenerateMojo extends AbstractMojo {
+
+    public static final String DOT_ENSIME = ".ensime";
+
+    /**
+     * The project whose project files to create.
+     */
+    @Component
+    protected MavenProject project;
+
+    /**
+     * The formatter preferences
+     */
+    @Parameter(property = "ensime.formatter.preferences", defaultValue = "${basedir}/src/ensime/formatter.properties")
+    protected File formatterPreferences;
+
+    /**
+     * Skip the operation when true.
+     */
+    @Parameter(property = "ensime.skip", defaultValue = "false")
+    protected boolean skip;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        // TODO Auto-generated method stub
+        if(skip) {
+            return;
+        }
+        ConfigGenerator generator = new ConfigGenerator(project, formatterPreferences);
+        generator.generate(new File(project.getBasedir(), DOT_ENSIME));
     }
 }
