@@ -41,12 +41,25 @@ class ConfigGenerator(
     val project: MavenProject,
     val formatterPreferences: File) {
 
+  /**
+   * Generates configurations.
+   */
   def generate(out: File): Unit = {
+
+    implicit val ArtifactToString = new As[Artifact, String] {
+
+      def as(artifact: Artifact) = {
+        artifact.getGroupId + ":" + artifact.getArtifactId + ":" + artifact.getType + ":" + artifact.getVersion
+      }
+    }
 
     val modules = (project :: project.getCollectedProjects.asInstanceOf[JList[MavenProject]].toList).filter {
       project => project.getPackaging != "pom"
     }
-    val artifactToModule = modules.map { module => module.getArtifact -> module }.toMap
+
+    val artifactIdToModule = modules.map {
+      module => module.getArtifact.as[String] -> module
+    }.toMap
 
     implicit val MavenProjectAsSubProject = new As[MavenProject, SubProject] {
 
@@ -54,8 +67,9 @@ class ConfigGenerator(
         val (dependsOnModules, runtimeDeps, compileDeps, testDeps) =
           (project.getArtifacts.asInstanceOf[JSet[Artifact]] :\ (List.empty[MavenProject], List.empty[String], List.empty[String], List.empty[String])) {
             case (artifact, (dependsOnModules, runtimeDeps, compileDeps, testDeps)) =>
-              if (artifactToModule.contains(artifact)) {
-                (artifactToModule(artifact) :: dependsOnModules, runtimeDeps, compileDeps, testDeps)
+              val artifactId = artifact.as[String]
+              if (artifactIdToModule.contains(artifactId)) {
+                (artifactIdToModule(artifactId) :: dependsOnModules, runtimeDeps, compileDeps, testDeps)
               } else {
                 val path = artifact.getFile.getAbsolutePath
                 artifact.getScope match {
