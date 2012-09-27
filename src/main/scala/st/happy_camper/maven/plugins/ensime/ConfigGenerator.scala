@@ -21,6 +21,7 @@ import java.util.{ List => JList }
 import java.util.{ Set => JSet }
 
 import scala.collection.JavaConversions._
+import scala.collection.immutable.ListSet
 
 import scalax.io.JavaConverters._
 
@@ -49,7 +50,7 @@ class ConfigGenerator(
     implicit val ArtifactToString = new As[Artifact, String] {
 
       def as(artifact: Artifact) = {
-        artifact.getGroupId + ":" + artifact.getArtifactId + ":" + artifact.getType + ":" + artifact.getVersion
+        artifact.getGroupId + ":" + artifact.getArtifactId + ":" + artifact.getVersion
       }
     }
 
@@ -65,11 +66,11 @@ class ConfigGenerator(
 
       def as(project: MavenProject): SubProject = {
         val (dependsOnModules, runtimeDeps, compileDeps, testDeps) =
-          (project.getArtifacts.asInstanceOf[JSet[Artifact]] :\ (List.empty[MavenProject], List.empty[String], List.empty[String], List.empty[String])) {
+          (project.getArtifacts.asInstanceOf[JSet[Artifact]] :\ (ListSet.empty[MavenProject], List.empty[String], List.empty[String], List.empty[String])) {
             case (artifact, (dependsOnModules, runtimeDeps, compileDeps, testDeps)) =>
               val artifactId = artifact.as[String]
               if (artifactIdToModule.contains(artifactId)) {
-                (artifactIdToModule(artifactId) :: dependsOnModules, runtimeDeps, compileDeps, testDeps)
+                (dependsOnModules + artifactIdToModule(artifactId), runtimeDeps, compileDeps, testDeps)
               } else {
                 val path = artifact.getFile.getAbsolutePath
                 artifact.getScope match {
@@ -88,22 +89,20 @@ class ConfigGenerator(
         SubProject(
           project.getArtifactId,
           project.getVersion,
-          runtimeDeps ::: ((project :: dependsOnModules).map { module =>
+          runtimeDeps ::: ((dependsOnModules.toList :+ project).map { module =>
             module.getBuild.getOutputDirectory
           }),
-          compileDeps ::: (dependsOnModules.map { module =>
+          compileDeps ::: (dependsOnModules.toList.map { module =>
             module.getBuild.getOutputDirectory
           }),
-          testDeps ::: ((project :: dependsOnModules).map { module =>
+          testDeps ::: ((dependsOnModules.toList :+ project).map { module =>
             module.getBuild.getOutputDirectory
           } :+ project.getBuild.getTestOutputDirectory),
           project.getCompileSourceRoots.asInstanceOf[JList[String]]
-            ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]]
-            ++: project.getResources.asInstanceOf[JList[Resource]].map(_.getDirectory)
-            ++: project.getTestResources.asInstanceOf[JList[Resource]].map(_.getDirectory) ++: Nil,
+            ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]] ++: Nil,
           project.getBuild.getOutputDirectory,
           project.getBuild.getTestOutputDirectory,
-          dependsOnModules.map(_.getArtifactId),
+          dependsOnModules.toList.map(_.getArtifactId),
           Map.empty)
       }
     }
