@@ -41,7 +41,7 @@ package object ensime {
    * Represents a converter from type A to another type.
    * @author ueshin
    */
-  class AAsB[A](a: A) {
+  implicit class AAsB[A](val a: A) extends AnyVal {
 
     type AAs[B] = ({ type l[A] = As[A, B] })#l[A]
 
@@ -51,11 +51,4 @@ package object ensime {
      */
     def as[B: AAs] = implicitly[AAs[B]].as(a)
   }
-
-  /**
-   * Returns AAsB instance.
-   * @param a the value
-   * @return the instance
-   */
-  implicit def toAAsB[A](a: A) = new AAsB(a)
 }
