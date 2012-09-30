@@ -43,8 +43,7 @@ class SubProjectSpec extends Specification {
         List("source-root-1", "source-root-2"),
         "target",
         "test-target",
-        List("depends-1", "depends-2"),
-        Map.empty)
+        List("depends-1", "depends-2"))
       subproject.as[SExpr].as[String] must equalTo("""(:name
                                                      |   "name"
                                                      | :module-name
@@ -69,9 +68,7 @@ class SubProjectSpec extends Specification {
                                                      |   "test-target"
                                                      | :depends-on-modules
                                                      |   ("depends-1"
-                                                     |    "depends-2")
-                                                     | :formatting-prefs
-                                                     |   ())""".stripMargin)
+                                                     |    "depends-2"))""".stripMargin)
     }
   }
 }

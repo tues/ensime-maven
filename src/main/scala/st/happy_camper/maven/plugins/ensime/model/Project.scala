@@ -26,7 +26,8 @@ import st.happy_camper.maven.plugins.ensime.sexpr.SMap
  * @author ueshin
  */
 case class Project(
-  subprojects: List[SubProject])
+  subprojects: List[SubProject],
+  formatterPreferences: FormatterPreferences)
 
 /**
  * A companion object for {@link Project}.
@@ -41,7 +42,8 @@ object Project {
 
     override def as(project: Project) = {
       SMap(Seq((SKeyword("subprojects"), SList(
-        project.subprojects.map { _.as[SExpr] }))))
+        project.subprojects.map { _.as[SExpr] })),
+        (SKeyword("formatting-prefs"), project.formatterPreferences.as[SExpr])))
     }
   }
 }

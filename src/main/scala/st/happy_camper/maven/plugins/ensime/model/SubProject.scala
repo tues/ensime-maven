@@ -37,8 +37,7 @@ case class SubProject(
   sourceRoots: List[String],
   target: String,
   testTarget: String,
-  dependsOnModules: List[String],
-  formattingPreferences: Map[String, Either[String, Boolean]])
+  dependsOnModules: List[String])
 
 /**
  * A companion object for {@link SubProject}.
@@ -62,15 +61,6 @@ object SubProject {
         (SKeyword("source-roots") -> SList(subproject.sourceRoots.map(SString(_)))),
         (SKeyword("target") -> SString(subproject.target)),
         (SKeyword("test-target") -> SString(subproject.testTarget)),
-        (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModules.map(SString(_)))),
-        (SKeyword("formatting-prefs") -> SMap(
-          subproject.formattingPreferences.map {
-            case (key, Left(value)) =>
-              SKeyword(key) -> SString(value)
-            case (key, Right(true)) =>
-              SKeyword(key) -> STrue
-            case (key, Right(false)) =>
-              SKeyword(key) -> SNil
-          }.toSeq))))
+        (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModules.map(SString(_))))))
   }
 }

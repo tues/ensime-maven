@@ -18,21 +18,18 @@ package st.happy_camper.maven.plugins.ensime
 import java.io.File
 import java.io.FileOutputStream
 import java.util.{ List => JList }
+import java.util.Properties
 import java.util.{ Set => JSet }
-
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListSet
-
 import scalax.io.JavaConverters._
-
 import org.apache.maven.artifact.Artifact
-import org.apache.maven.model.Resource
 import org.apache.maven.project.MavenProject
-
 import st.happy_camper.maven.plugins.ensime.model.Project
 import st.happy_camper.maven.plugins.ensime.model.SubProject
 import st.happy_camper.maven.plugins.ensime.sexpr.SExpr
 import st.happy_camper.maven.plugins.ensime.sexpr.SExprEmitter
+import st.happy_camper.maven.plugins.ensime.model.FormatterPreferences
 
 /**
  * Represents an ENSIME configuration file generator.
@@ -40,7 +37,7 @@ import st.happy_camper.maven.plugins.ensime.sexpr.SExprEmitter
  */
 class ConfigGenerator(
     val project: MavenProject,
-    val formatterPreferences: File) {
+    val properties: Properties) {
 
   /**
    * Generates configurations.
@@ -102,12 +99,11 @@ class ConfigGenerator(
             ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]] ++: Nil,
           project.getBuild.getOutputDirectory,
           project.getBuild.getTestOutputDirectory,
-          dependsOnModules.toList.map(_.getArtifactId),
-          Map.empty)
+          dependsOnModules.toList.map(_.getArtifactId))
       }
     }
 
-    val emitter = new SExprEmitter(Project(modules.map(_.as[SubProject])).as[SExpr])
+    val emitter = new SExprEmitter(Project(modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
     emitter.emit(new FileOutputStream(out).asOutput)
   }
 }

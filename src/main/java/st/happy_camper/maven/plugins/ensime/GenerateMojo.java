@@ -16,6 +16,10 @@
 package st.happy_camper.maven.plugins.ensime;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -59,7 +63,24 @@ public class GenerateMojo extends AbstractMojo {
         if(skip) {
             return;
         }
-        ConfigGenerator generator = new ConfigGenerator(project, formatterPreferences);
+        Properties properties = new Properties();
+        InputStream in = null;
+        try {
+            in = new FileInputStream(formatterPreferences);
+            properties.load(in);
+        }
+        catch(IOException e) {
+        }
+        finally {
+            if(in != null) {
+                try {
+                    in.close();
+                }
+                catch(IOException e) {
+                }
+            }
+        }
+        ConfigGenerator generator = new ConfigGenerator(project, properties);
         generator.generate(new File(project.getBasedir(), DOT_ENSIME));
     }
 }

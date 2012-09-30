@@ -52,4 +52,44 @@ object SExpr {
       new String(bytes.toByteArray, codec.charSet)
     }
   }
+
+  /**
+   * Treats Boolean as SExpr.
+   */
+  implicit object BooleanAsSExpr extends As[Boolean, SExpr] {
+
+    override def as(b: Boolean) = {
+      if (b) STrue else SNil
+    }
+  }
+
+  /**
+   * Treats Int as SExpr.
+   */
+  implicit object IntAsSExpr extends As[Int, SExpr] {
+
+    override def as(i: Int) = {
+      SString(i.toString)
+    }
+  }
+
+  /**
+   * Treats String as SExpr.
+   */
+  implicit object StringAsSExpr extends As[String, SExpr] {
+
+    override def as(s: String) = {
+      SString(s)
+    }
+  }
+
+  /**
+   * Treats String as SKeyword.
+   */
+  implicit object StringAsSKeyword extends As[String, SKeyword] {
+
+    override def as(str: String) = {
+      SKeyword(str)
+    }
+  }
 }
