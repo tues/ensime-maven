@@ -54,7 +54,7 @@ object SubProject {
       SMap(Seq(
         (SKeyword("name") -> SString(subproject.name)),
         (SKeyword("module-name") -> SString(subproject.name)),
-        (SKeyword("version") -> SString(subproject.version)),
+        //(SKeyword("version") -> SString(subproject.version)),
         (SKeyword("runtime-deps") -> SList(subproject.runtimeDeps.map(SString(_)))),
         (SKeyword("compile-deps") -> SList(subproject.compileDeps.map(SString(_)))),
         (SKeyword("test-deps") -> SList(subproject.testDeps.map(SString(_)))),

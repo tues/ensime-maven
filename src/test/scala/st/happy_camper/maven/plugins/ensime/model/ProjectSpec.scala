@@ -34,7 +34,7 @@ class ProjectSpec extends Specification {
   "Project" should {
 
     "be treated as SExpr" in {
-      val project = Project(List(SubProject(
+      val project = Project("name","path", "cache", "version", List(SubProject(
         "name",
         "version",
         List("runtime-dep-1", "runtime-dep-2"),
@@ -45,34 +45,44 @@ class ProjectSpec extends Specification {
         "test-target",
         List("depends-1", "depends-2"))),
         FormatterPreferences())
-      project.as[SExpr].as[String] must equalTo("""(:subprojects
-                                                  |   ((:name
-                                                  |       "name"
-                                                  |     :module-name
-                                                  |       "name"
-                                                  |     :version
-                                                  |       "version"
-                                                  |     :runtime-deps
-                                                  |       ("runtime-dep-1"
-                                                  |        "runtime-dep-2")
-                                                  |     :compile-deps
-                                                  |       ("compile-dep-1"
-                                                  |        "compile-dep-2")
-                                                  |     :test-deps
-                                                  |       ("test-dep-1"
-                                                  |        "test-dpe-2")
-                                                  |     :source-roots
-                                                  |       ("source-root-1"
-                                                  |        "source-root-2")
-                                                  |     :target
-                                                  |       "target"
-                                                  |     :test-target
-                                                  |       "test-target"
-                                                  |     :depends-on-modules
-                                                  |       ("depends-1"
-                                                  |        "depends-2")))
-                                                  | :formatting-prefs
-                                                  |   ())""".stripMargin)
+
+      val expected = """(:root-dir
+                       |   "path"
+                       | :cache-dir
+                       |   "cache"
+                       | :name
+                       |   "name"
+                       | :scala-version
+                       |   "version"
+                       | :subprojects
+                       |   ((:name
+                       |       "name"
+                       |     :module-name
+                       |       "name"
+                       |     :runtime-deps
+                       |       ("runtime-dep-1"
+                       |        "runtime-dep-2")
+                       |     :compile-deps
+                       |       ("compile-dep-1"
+                       |        "compile-dep-2")
+                       |     :test-deps
+                       |       ("test-dep-1"
+                       |        "test-dpe-2")
+                       |     :source-roots
+                       |       ("source-root-1"
+                       |        "source-root-2")
+                       |     :target
+                       |       "target"
+                       |     :test-target
+                       |       "test-target"
+                       |     :depends-on-modules
+                       |       ("depends-1"
+                       |        "depends-2")))
+                       | :formatting-prefs
+                       |   ())""".stripMargin
+
+        val output = project.as[SExpr].as[String]
+        output must equalTo(expected)
     }
   }
 }

@@ -16,16 +16,20 @@
 package st.happy_camper.maven.plugins.ensime
 package model
 
-import st.happy_camper.maven.plugins.ensime.sexpr.SExpr
-import st.happy_camper.maven.plugins.ensime.sexpr.SKeyword
-import st.happy_camper.maven.plugins.ensime.sexpr.SList
+import st.happy_camper.maven.plugins.ensime.sexpr._
 import st.happy_camper.maven.plugins.ensime.sexpr.SMap
+import st.happy_camper.maven.plugins.ensime.sexpr.SList
+import st.happy_camper.maven.plugins.ensime.sexpr.SKeyword
 
 /**
  * Represents ENSIME project.
  * @author ueshin
  */
 case class Project(
+  name: String,
+  rootDir: String,
+  cacheDir: String,
+  scalaVersion: String,
   subprojects: List[SubProject],
   formatterPreferences: FormatterPreferences)
 
@@ -41,8 +45,12 @@ object Project {
   implicit object ProjectAsSExpr extends As[Project, SExpr] {
 
     override def as(project: Project) = {
-      SMap(Seq((SKeyword("subprojects"), SList(
-        project.subprojects.map { _.as[SExpr] })),
+      SMap(Seq(
+        (SKeyword("root-dir") -> SString(project.rootDir)),
+        (SKeyword("cache-dir") -> SString(project.cacheDir)),
+        (SKeyword("name") -> SString(project.name)),
+        (SKeyword("scala-version") -> SString(project.scalaVersion)),
+        (SKeyword("subprojects"), SList(project.subprojects.map { _.as[SExpr] })),
         (SKeyword("formatting-prefs"), project.formatterPreferences.as[SExpr])))
     }
   }

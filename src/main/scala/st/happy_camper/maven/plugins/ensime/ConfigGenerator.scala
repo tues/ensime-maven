@@ -17,6 +17,8 @@ package st.happy_camper.maven.plugins.ensime
 
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.{ List => JList }
 import java.util.Properties
 import java.util.{ Set => JSet }
@@ -38,6 +40,24 @@ import st.happy_camper.maven.plugins.ensime.model.FormatterPreferences
 class ConfigGenerator(
     val project: MavenProject,
     val properties: Properties) {
+
+
+  /**
+   * An inefficient scala source root finder.
+   * @param lookIn - List of java source roots according to maven
+   * @return a list of scala source roots
+   */
+  def getScalaSourceRoots(lookIn: JList[String]): JList[String] = {
+    val scalas = new scala.collection.mutable.SetBuilder[String, Set[String]](Set())
+
+    lookIn.foreach { here =>
+      val path = here.split("/").filter(_ != "java").mkString("/") + "/scala"
+      if (Files.exists(Paths.get(path))) {
+        scalas += path
+      }
+    }
+    scalas.result().toList
+  }
 
   /**
    * Generates configurations.
@@ -83,6 +103,9 @@ class ConfigGenerator(
               }
           }
 
+        val sourceRoots = project.getCompileSourceRoots.asInstanceOf[JList[String]] ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]] ++: Nil
+        val scalaRoots = getScalaSourceRoots(sourceRoots)
+
         SubProject(
           project.getArtifactId,
           project.getVersion,
@@ -92,18 +115,21 @@ class ConfigGenerator(
           compileDeps ::: (dependsOnModules.toList.map { module =>
             module.getBuild.getOutputDirectory
           }),
-          testDeps ::: ((dependsOnModules.toList :+ project).map { module =>
-            module.getBuild.getOutputDirectory
-          } :+ project.getBuild.getTestOutputDirectory),
-          project.getCompileSourceRoots.asInstanceOf[JList[String]]
-            ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]] ++: Nil,
+          testDeps,
+            // TODO: File a bug against ensime-server, cuz this breaks shit
+            // ::: ((dependsOnModules.toList :+ project).map { module =>
+            //module.getBuild.getOutputDirectory
+            //} :+ project.getBuild.getTestOutputDirectory),
+          scalaRoots ++: sourceRoots,
           project.getBuild.getOutputDirectory,
           project.getBuild.getTestOutputDirectory,
           dependsOnModules.toList.map(_.getArtifactId))
       }
     }
 
-    val emitter = new SExprEmitter(Project(modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
+    val projectDir = project.getBasedir().toPath().toAbsolutePath().toString()
+    val cacheDir = projectDir + "/.ensime_cache"
+    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, "2.9.2", modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
     emitter.emit(new FileOutputStream(out).asOutput)
   }
 }

@@ -48,8 +48,6 @@ class SubProjectSpec extends Specification {
                                                      |   "name"
                                                      | :module-name
                                                      |   "name"
-                                                     | :version
-                                                     |   "version"
                                                      | :runtime-deps
                                                      |   ("runtime-dep-1"
                                                      |    "runtime-dep-2")

@@ -80,6 +80,7 @@ public class GenerateMojo extends AbstractMojo {
                 }
             }
         }
+
         ConfigGenerator generator = new ConfigGenerator(project, properties);
         generator.generate(new File(project.getBasedir(), DOT_ENSIME));
     }
