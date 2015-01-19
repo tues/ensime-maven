@@ -52,6 +52,16 @@ class ConfigGenerator(
   }
 
   /**
+   * Get the scala-version for this project.  Uses scala.version as the key.
+   * If you want a blue shed, get out a can of paint :)
+   * @return String containing the scala version
+   * @author parsnips
+   */
+  def getScalaVersion(): String = {
+    Option(project.getProperties().getProperty("scala.version")).getOrElse("2.9.2") // So arbitrary.
+  }
+
+  /**
    * An inefficient scala source root finder.
    * @param lookIn - List of java source roots according to maven
    * @return a list of scala source roots
@@ -139,7 +149,7 @@ class ConfigGenerator(
 
     val projectDir = project.getBasedir().toPath().toAbsolutePath().toString()
     val cacheDir = projectDir + "/.ensime_cache"
-    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, "2.9.2", getEnsimeJavaFlags(), modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
+    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, getScalaVersion(), getEnsimeJavaFlags(), modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
     emitter.emit(new FileOutputStream(out).asOutput)
   }
 }
