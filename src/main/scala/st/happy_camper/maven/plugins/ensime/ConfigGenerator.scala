@@ -41,11 +41,21 @@ class ConfigGenerator(
     val project: MavenProject,
     val properties: Properties) {
 
+  /**
+   * Get java-flags from environment variable `ENSIME_JAVA_FLAGS` .
+   * Used for starting ensime-server.
+   * @return Environment variabla as string or None
+   * @author parsnips
+   */
+  def getEnsimeJavaFlags(): Option[String] = {
+    Option(System.getenv("ENSIME_JAVA_FLAGS"))
+  }
 
   /**
    * An inefficient scala source root finder.
    * @param lookIn - List of java source roots according to maven
    * @return a list of scala source roots
+   * @author parsnips
    */
   def getScalaSourceRoots(lookIn: JList[String]): JList[String] = {
     val scalas = new scala.collection.mutable.SetBuilder[String, Set[String]](Set())
@@ -129,7 +139,7 @@ class ConfigGenerator(
 
     val projectDir = project.getBasedir().toPath().toAbsolutePath().toString()
     val cacheDir = projectDir + "/.ensime_cache"
-    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, "2.9.2", modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
+    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, "2.9.2", getEnsimeJavaFlags(), modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
     emitter.emit(new FileOutputStream(out).asOutput)
   }
 }
