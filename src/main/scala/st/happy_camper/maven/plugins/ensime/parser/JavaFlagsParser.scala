@@ -4,18 +4,12 @@ import util.parsing.combinator.RegexParsers
 
 /**
  * Parser which generates a list of strings from a string in form of
- * """"-arg1" "-arg2" "-arg3""""
+ * "-arg1 -arg2 -arg3"
  */
 object JavaFlagsParser extends RegexParsers {
-  def start: Parser[String] = "\""
-  def end: Parser[String] = "\""
-  def kwd: Parser[String] = "-[^\"]+".r
-
-  def arg: Parser[String] = (start ~ kwd ~ end) ^^ {
-    case start ~ kwd ~ end => kwd
-  }
-
+  def arg: Parser[String] = "-.[^\\s]+".r
   def separator: Parser[String] = "[\\s]".r
+
   def args = arg.* ~ (separator ~ arg).*
 
   def apply(input: String) = parseAll(args, input) match {
