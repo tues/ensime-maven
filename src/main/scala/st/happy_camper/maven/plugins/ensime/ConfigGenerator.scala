@@ -44,11 +44,14 @@ class ConfigGenerator(
   /**
    * Get java-flags from environment variable `ENSIME_JAVA_FLAGS` .
    * Used for starting ensime-server.
-   * @return Environment variabla as string or None
+   * @return List of java flags or empty list if not provided
    * @author parsnips
    */
-  def getEnsimeJavaFlags(): Option[String] = {
-    Option(System.getenv("ENSIME_JAVA_FLAGS"))
+  def getEnsimeJavaFlags(): List[String] = {
+    Option(System.getenv("ENSIME_JAVA_FLAGS")) match {
+      case Some(flags) => parser.JavaFlagsParser(flags)
+      case _ => List()
+    }
   }
 
   /**

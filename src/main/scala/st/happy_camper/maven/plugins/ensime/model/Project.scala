@@ -30,7 +30,7 @@ case class Project(
   rootDir: String,
   cacheDir: String,
   scalaVersion: String,
-  ensimeJavaFlags: Option[String],
+  ensimeJavaFlags: List[String],
   subprojects: List[SubProject],
   formatterPreferences: FormatterPreferences)
 
@@ -50,11 +50,9 @@ object Project {
         (SKeyword("root-dir") -> SString(project.rootDir)),
         (SKeyword("cache-dir") -> SString(project.cacheDir)),
         (SKeyword("name") -> SString(project.name)),
-        (SKeyword("scala-version") -> SString(project.scalaVersion))) ++
-
-        project.ensimeJavaFlags.map((SKeyword("java-flags") -> SString(_))) ++
-
-        Seq((SKeyword("subprojects"), SList(project.subprojects.map { _.as[SExpr] })),
+        (SKeyword("scala-version") -> SString(project.scalaVersion)),
+        (SKeyword("java-flags") -> SList(project.ensimeJavaFlags.map(SString(_)))),
+        (SKeyword("subprojects"), SList(project.subprojects.map { _.as[SExpr] })),
         (SKeyword("formatting-prefs"), project.formatterPreferences.as[SExpr])))
     }
   }

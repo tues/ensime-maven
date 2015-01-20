@@ -34,7 +34,7 @@ class ProjectSpec extends Specification {
   "Project" should {
 
     "be treated as SExpr" in {
-      val project = Project("name","path", "cache", "version", Some("ensime vars"), List(SubProject(
+      val project = Project("name","path", "cache", "version", List("-first", "-second"), List(SubProject(
         "name",
         "version",
         List("runtime-dep-1", "runtime-dep-2"),
@@ -55,7 +55,8 @@ class ProjectSpec extends Specification {
                        | :scala-version
                        |   "version"
                        | :java-flags
-                       |   "ensime vars"
+                       |   ("-first"
+                       |    "-second")
                        | :subprojects
                        |   ((:name
                        |       "name"
