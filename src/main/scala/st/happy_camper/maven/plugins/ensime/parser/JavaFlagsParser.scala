@@ -7,7 +7,7 @@ import util.parsing.combinator.RegexParsers
  * "-arg1 -arg2 -arg3"
  */
 object JavaFlagsParser extends RegexParsers {
-  def arg: Parser[String] = "-.[^\\s]+".r
+  def arg: Parser[String] = "-[^\\s]+".r
   def separator: Parser[String] = "[\\s]".r
 
   def args = arg.* ~ (separator ~ arg).*
