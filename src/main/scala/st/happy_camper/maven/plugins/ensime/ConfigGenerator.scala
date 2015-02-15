@@ -25,6 +25,7 @@ import java.util.{ Set => JSet }
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListSet
 import scalax.io.JavaConverters._
+import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.project.MavenProject
 import st.happy_camper.maven.plugins.ensime.model.Project
@@ -40,6 +41,10 @@ import st.happy_camper.maven.plugins.ensime.model.FormatterPreferences
 class ConfigGenerator(
     val project: MavenProject,
     val properties: Properties) {
+
+  def getJavaHome(): String = {
+    SystemUtils.getJavaHome().getPath()
+  }
 
   /**
    * Get java-flags from environment variable `ENSIME_JAVA_FLAGS` .
@@ -152,7 +157,7 @@ class ConfigGenerator(
 
     val projectDir = project.getBasedir().toPath().toAbsolutePath().toString()
     val cacheDir = projectDir + "/.ensime_cache"
-    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, getScalaVersion(), getEnsimeJavaFlags(), modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
+    val emitter = new SExprEmitter(Project(project.getName(), projectDir, cacheDir, getScalaVersion(), getJavaHome(), getEnsimeJavaFlags(), modules.map(_.as[SubProject]), FormatterPreferences(properties)).as[SExpr])
     emitter.emit(new FileOutputStream(out).asOutput)
   }
 }
