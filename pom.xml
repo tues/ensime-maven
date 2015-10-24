@@ -45,11 +45,12 @@
     <mavenVersion>2.0.11</mavenVersion>
     <maven.test.jvmargs>-Xmx1024m</maven.test.jvmargs>
 
-    <scala.version>2.10.0-M7</scala.version>
-    <scala-io.version>0.4.1</scala-io.version>
+    <scala.version>2.10.5</scala.version>
+    <scala-major.version>2.10</scala-major.version>
+    <scala-io.version>0.4.3</scala-io.version>
 
     <junit.version>4.10</junit.version>
-    <specs2.version>1.12.1.1</specs2.version>
+    <specs2.version>2.3</specs2.version>
     <mockito.version>1.9.0</mockito.version>
   </properties>
 
@@ -292,7 +293,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.scala-incubator.io</groupId>
-      <artifactId>scala-io-core_${scala.version}</artifactId>
+      <artifactId>scala-io-core_${scala-major.version}</artifactId>
     </dependency>
 
     <dependency>
@@ -301,7 +302,7 @@
     </dependency>
     <dependency>
       <groupId>org.specs2</groupId>
-      <artifactId>specs2_${scala.version}</artifactId>
+      <artifactId>specs2_${scala-major.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -343,7 +344,7 @@
       </dependency>
       <dependency>
         <groupId>com.github.scala-incubator.io</groupId>
-        <artifactId>scala-io-core_${scala.version}</artifactId>
+        <artifactId>scala-io-core_${scala-major.version}</artifactId>
         <version>${scala-io.version}</version>
         <exclusions>
           <exclusion>
@@ -361,7 +362,7 @@
       </dependency>
       <dependency>
         <groupId>org.specs2</groupId>
-        <artifactId>specs2_${scala.version}</artifactId>
+        <artifactId>specs2_${scala-major.version}</artifactId>
         <version>${specs2.version}</version>
         <scope>test</scope>
       </dependency>
