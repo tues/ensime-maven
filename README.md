@@ -3,5 +3,3 @@
 # ENSIME Maven Plugin
 
 This [maven](https://maven.apache.org/) plugin generates a `.ensime` file for use with an [ENSIME server](http://github.com/ensime/ensime-server).
-
-Report issues on the [ensime-server tracker](https://github.com/ensime/ensime-server/issues) after checking the [FAQs](https://github.com/ensime/ensime-server/issues?q=label%3AFAQ)
