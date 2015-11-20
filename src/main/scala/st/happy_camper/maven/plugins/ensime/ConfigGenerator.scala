@@ -43,7 +43,7 @@ class ConfigGenerator(
     val properties: Properties) {
 
   def getJavaHome(): String = {
-    SystemUtils.getJavaHome().getPath()
+    SystemUtils.getJavaHome().getPath().replaceFirst("/jre$", "")
   }
 
   /**
