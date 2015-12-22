@@ -42,6 +42,8 @@ class ConfigGenerator(
     val project: MavenProject,
     val properties: Properties) {
 
+  val jarPattern = "\\.jar$".r
+
   def getJavaHome(): String = {
     SystemUtils.getJavaHome().getPath().replaceFirst("/jre$", "")
   }
@@ -133,6 +135,7 @@ class ConfigGenerator(
 
         val sourceRoots = project.getCompileSourceRoots.asInstanceOf[JList[String]] ++: project.getTestCompileSourceRoots.asInstanceOf[JList[String]] ++: Nil
         val scalaRoots = getScalaSourceRoots(sourceRoots)
+        val allDeps = (runtimeDeps ++ compileDeps ++ testDeps).toSet
 
         SubProject(
           project.getArtifactId,
@@ -151,7 +154,16 @@ class ConfigGenerator(
           scalaRoots ++: sourceRoots,
           project.getBuild.getOutputDirectory,
           project.getBuild.getTestOutputDirectory,
-          dependsOnModules.toList.map(_.getArtifactId))
+          dependsOnModules.toList.map(_.getArtifactId),
+          allDeps.foldLeft(List[String]()) { (output, dep) =>
+            val sourceJar = jarPattern.replaceFirstIn(dep, "-sources.jar")
+            if (new java.io.File(sourceJar).exists) {
+              sourceJar :: output
+            } else {
+              output
+            }
+          }
+        )
       }
     }
 
