@@ -15,8 +15,7 @@
  */
 package st.happy_camper.maven.plugins.ensime
 
-import java.io.File
-import java.io.FileOutputStream
+import java.io.{File, FileOutputStream, FileNotFoundException}
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.{ List => JList }
@@ -25,7 +24,6 @@ import java.util.{ Set => JSet }
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListSet
 import scalax.io.JavaConverters._
-import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.project.MavenProject
 import st.happy_camper.maven.plugins.ensime.model.Project
@@ -45,7 +43,25 @@ class ConfigGenerator(
   val jarPattern = "\\.jar$".r
 
   def getJavaHome(): String = {
-    SystemUtils.getJavaHome().getPath().replaceFirst("/jre$", "")
+    List(
+      // manual
+      sys.env.get("JDK_HOME"),
+      sys.env.get("JAVA_HOME"),
+      // osx
+      Option("/usr/libexec/java_home"),
+      // fallback
+      sys.props.get("java.home").map(new File(_).getParent),
+      sys.props.get("java.home")
+    ).flatten.map { n =>
+      // Make sure we're dealing with the JDK by seeing if `javac` exists
+      new File (n.trim + File.separator + "bin" + File.separator + "javac")
+    }.filter(_.exists())
+      .map(_.getParentFile.getParent)
+      .headOption.getOrElse(
+      throw new FileNotFoundException(
+        """Could not automatically find the JRE home directory.
+        |You must explicitly set JDK_HOME or JAVA_HOME.""".stripMargin
+      ))
   }
 
   /**
