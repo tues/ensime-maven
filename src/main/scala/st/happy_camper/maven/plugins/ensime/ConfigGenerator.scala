@@ -84,7 +84,7 @@ class ConfigGenerator(
    * @author parsnips
    */
   def getScalaVersion(): String = {
-    Option(project.getProperties().getProperty("scala.version")).getOrElse("2.9.2") // So arbitrary.
+    Option(project.getProperties().getProperty("scala.version")).getOrElse("2.10.6") // So arbitrary.
   }
 
   /**
