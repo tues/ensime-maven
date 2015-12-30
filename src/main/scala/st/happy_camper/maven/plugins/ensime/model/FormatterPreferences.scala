@@ -34,7 +34,7 @@ case class FormatterPreferences(
     alignParameters: Option[Boolean] = None,
     doubleIndentClassDeclaration: Option[Boolean] = None,
     alignSingleLineCaseStatements: Option[Boolean] = None,
-    //alignSingleLineCaseStatements_maxArrowIndent: Option[Int] = None,
+    alignSingleLineCaseStatements_maxArrowIndent: Option[Int] = None,
     indentPackageBlocks: Option[Boolean] = None,
     indentLocalDefs: Option[Boolean] = None,
 
@@ -77,7 +77,7 @@ object FormatterPreferences {
       alignParameters = Option(properties.getProperty("alignParameters")).map(_.toBoolean),
       doubleIndentClassDeclaration = Option(properties.getProperty("doubleIndentClassDeclaration")).map(_.toBoolean),
       alignSingleLineCaseStatements = Option(properties.getProperty("alignSingleLineCaseStatements")).map(_.toBoolean),
-      //alignSingleLineCaseStatements_maxArrowIndent = Option(properties.getProperty("alignSingleLineCaseStatements.maxArrowIndent")).map(_.toInt),
+      alignSingleLineCaseStatements_maxArrowIndent = Option(properties.getProperty("alignSingleLineCaseStatements.maxArrowIndent")).map(_.toInt),
       indentPackageBlocks = Option(properties.getProperty("indentPackageBlocks")).map(_.toBoolean),
       indentLocalDefs = Option(properties.getProperty("indentLocalDefs")).map(_.toBoolean),
 
@@ -113,7 +113,7 @@ object FormatterPreferences {
           fp.alignParameters.map(b => ("alignParameters".as[SKeyword], b.as[SExpr])).toList :::
           fp.doubleIndentClassDeclaration.map(b => ("doubleIndentClassDeclaration".as[SKeyword], b.as[SExpr])).toList :::
           fp.alignSingleLineCaseStatements.map(b => ("alignSingleLineCaseStatements".as[SKeyword], b.as[SExpr])).toList :::
-          //fp.alignSingleLineCaseStatements_maxArrowIndent.map(i => ("alignSingleLineCaseStatements_maxArrowIndent".as[SKeyword], i.as[SExpr])).toList :::
+          fp.alignSingleLineCaseStatements_maxArrowIndent.map(i => ("alignSingleLineCaseStatements.maxArrowIndent".as[SKeyword], i.as[SExpr])).toList :::
           fp.indentPackageBlocks.map(b => ("indentPackageBlocks".as[SKeyword], b.as[SExpr])).toList :::
           fp.indentLocalDefs.map(b => ("indentLocalDefs".as[SKeyword], b.as[SExpr])).toList :::
 
