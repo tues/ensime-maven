@@ -45,6 +45,15 @@ class SExprEmitterSpec extends Specification {
       out.toString must equalTo("\"string\"")
     }
 
+    "emit S-Int" in new Context {
+      val sstring = SInt(5)
+
+      val emitter = new SExprEmitter(sstring)
+      emitter.emit(out.asOutput)
+
+      out.toString must equalTo("5")
+    }
+
     "emit S-True" in new Context {
       val strue = STrue
 

@@ -27,6 +27,7 @@ import scalax.io.JavaConverters._
  */
 sealed trait SExpr
 case class SString(value: String) extends SExpr
+case class SInt(value: Int) extends SExpr
 case object STrue extends SExpr
 case object SNil extends SExpr
 case class SKeyword(keyword: String) extends SExpr
@@ -69,7 +70,7 @@ object SExpr {
   implicit object IntAsSExpr extends As[Int, SExpr] {
 
     override def as(i: Int) = {
-      SString(i.toString)
+      SInt(i)
     }
   }
 
