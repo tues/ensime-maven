@@ -37,6 +37,7 @@ class SExprEmitter(val sexpr: SExpr) {
   @inline
   private def emitSExpr(out: Output, sexpr: SExpr, indent: Int = 0): Unit = sexpr match {
     case SString(value)    => emitSString(out, value)
+    case SInt(value)       => emitSInt(out, value)
     case STrue             => emitSTrue(out)
     case SNil              => emitSNil(out)
     case SKeyword(keyword) => emitSKeyword(out, keyword)
@@ -46,6 +47,9 @@ class SExprEmitter(val sexpr: SExpr) {
 
   @inline
   private def emitSString(out: Output, value: String) = out.write("\"" + value + "\"")
+
+  @inline
+  private def emitSInt(out: Output, value: Int) = out.write(value.toString)
 
   @inline
   private def emitSTrue(out: Output) = out.write("t")
