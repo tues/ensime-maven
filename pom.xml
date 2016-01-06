@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>st.happy_camper.maven.plugins</groupId>
-  <artifactId>ensime-maven-plugin</artifactId>
+  <groupId>org.ensime.maven.plugins</groupId>
+  <artifactId>ensime-maven</artifactId>
   <packaging>maven-plugin</packaging>
   <version>0.0.3-SNAPSHOT</version>
-  <name>ensime-maven-plugin</name>
+  <name>ensime-maven</name>
 
   <inceptionYear>2012</inceptionYear>
-  <url>http://happy-camper.st/ensime-maven-plugin</url>
+  <url>http://ensime.github.io</url>
   <description>Maven ENSIME plugin</description>
   <licenses>
     <license>
@@ -18,8 +18,8 @@
     </license>
   </licenses>
   <organization>
-    <name>Happy-Camper Street</name>
-    <url>http://happy-camper.st/</url>
+    <name>Ensime</name>
+    <url>http://ensime.github.io/</url>
   </organization>
   <developers>
     <developer>
@@ -32,13 +32,13 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git://github.com/ueshin/ensime-maven-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:ueshin/ensime-maven-plugin.git</developerConnection>
-    <url>https://github.com/ueshin/ensime-maven-plugin</url>
+    <connection>scm:git://github.com/ensime/ensime-maven.git</connection>
+    <developerConnection>scm:git:git@github.com:ensime/ensime-maven.git</developerConnection>
+    <url>https://github.com/ensime/ensime-maven</url>
   </scm>
   <issueManagement>
     <system>GitHub</system>
-    <url>http://github.com/ueshin/ensime-maven-plugin/issues</url>
+    <url>http://github.com/ensime/ensime-maven/issues</url>
   </issueManagement>
 
   <properties>
@@ -370,64 +370,4 @@
 
     </dependencies>
   </dependencyManagement>
-
-  <repositories>
-    <repository>
-      <id>github-releases</id>
-      <url>http://ueshin.github.com/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>github-snapshots</id>
-      <url>http://ueshin.github.com/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>github-releases</id>
-      <url>http://ueshin.github.com/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>github-snapshots</id>
-      <url>http://ueshin.github.com/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <distributionManagement>
-    <repository>
-      <id>github-releases</id>
-      <url>http://ueshin.github.com/releases</url>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-    <snapshotRepository>
-      <id>github-snapshots</id>
-      <url>http://ueshin.github.com/snapshots</url>
-      <uniqueVersion>true</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
-
 </project>

@@ -1,0 +1,13 @@
+build:
+  image: maven:3.3.3-jdk-8-onbuild
+  pull: true
+  environment:
+    - SONATYPE_USERNAME=$$SONATYPE_USERNAME
+    - SONATYPE_PASSWORD=$$SONATYPE_PASSWORD
+    - SCALA_VERSION=2.10.6
+  commands:
+    - git log | head -n 20
+    - mvn clean install
+    - if [ "$CI_BRANCH" = "master" ] ; then
+        mvn publish ;
+      fi
