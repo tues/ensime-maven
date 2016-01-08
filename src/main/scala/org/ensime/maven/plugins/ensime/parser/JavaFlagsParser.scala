@@ -14,6 +14,6 @@ object JavaFlagsParser extends RegexParsers {
 
   def apply(input: String) = parseAll(args, input) match {
     case Success(result, _) => result._1
-    case NoSuccess(_, _) => throw new IllegalArgumentException("Could not parse java flags")
+    case NoSuccess(_, _)    => throw new IllegalArgumentException("Could not parse java flags")
   }
 }

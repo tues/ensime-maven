@@ -15,7 +15,7 @@
  */
 package org.ensime.maven.plugins.ensime
 
-import java.io.{File, FileOutputStream, FileNotFoundException}
+import java.io.{ File, FileOutputStream, FileNotFoundException }
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.{ List => JList }
@@ -51,17 +51,15 @@ class ConfigGenerator(
       Option("/usr/libexec/java_home"),
       // fallback
       sys.props.get("java.home").map(new File(_).getParent),
-      sys.props.get("java.home")
-    ).flatten.map { n =>
-      // Make sure we're dealing with the JDK by seeing if `javac` exists
-      new File (n.trim + File.separator + "bin" + File.separator + "javac")
-    }.filter(_.exists())
+      sys.props.get("java.home")).flatten.map { n =>
+        // Make sure we're dealing with the JDK by seeing if `javac` exists
+        new File(n.trim + File.separator + "bin" + File.separator + "javac")
+      }.filter(_.exists())
       .map(_.getParentFile.getParent)
       .headOption.getOrElse(
-      throw new FileNotFoundException(
-        """Could not automatically find the JRE home directory.
-        |You must explicitly set JDK_HOME or JAVA_HOME.""".stripMargin
-      ))
+        throw new FileNotFoundException(
+          """Could not automatically find the JRE home directory.
+        |You must explicitly set JDK_HOME or JAVA_HOME.""".stripMargin))
   }
 
   /**
@@ -73,7 +71,7 @@ class ConfigGenerator(
   def getEnsimeJavaFlags(): List[String] = {
     Option(System.getenv("ENSIME_JAVA_FLAGS")) match {
       case Some(flags) => parser.JavaFlagsParser(flags)
-      case _ => List()
+      case _           => List()
     }
   }
 
@@ -163,10 +161,10 @@ class ConfigGenerator(
             module.getBuild.getOutputDirectory
           }),
           testDeps,
-            // TODO: File a bug against ensime-server, cuz this breaks shit
-            // ::: ((dependsOnModules.toList :+ project).map { module =>
-            //module.getBuild.getOutputDirectory
-            //} :+ project.getBuild.getTestOutputDirectory),
+          // TODO: File a bug against ensime-server, cuz this breaks shit
+          // ::: ((dependsOnModules.toList :+ project).map { module =>
+          //module.getBuild.getOutputDirectory
+          //} :+ project.getBuild.getTestOutputDirectory),
           scalaRoots ++: sourceRoots,
           project.getBuild.getOutputDirectory,
           project.getBuild.getTestOutputDirectory,
@@ -178,8 +176,7 @@ class ConfigGenerator(
             } else {
               output
             }
-          }
-        )
+          })
       }
     }
 

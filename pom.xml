@@ -100,6 +100,44 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>${project.artifactId}</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.scalariform</groupId>
+        <artifactId>scalariform-maven-plugin</artifactId>
+        <version>0.1.4</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>format</goal>
+            </goals>
+            <configuration>
+              <indentSpaces>2</indentSpaces>
+              <indentWithTabs>false</indentWithTabs>
+              <alignParameters>true</alignParameters>
+              <doubleIndentClassDeclaration>true</doubleIndentClassDeclaration>
+              <alignSingleLineCaseStatements>true</alignSingleLineCaseStatements>
+              <alignSingleLineCaseStatements.maxArrowIndent>40</alignSingleLineCaseStatements.maxArrowIndent>
+              <indentPackageBlocks>true</indentPackageBlocks>
+              <indentLocalDefs>false</indentLocalDefs>
+              <!-- Spaces -->
+              <spaceBeforeColon>false</spaceBeforeColon>
+              <compactStringConcatenation>false</compactStringConcatenation>
+              <spaceInsideBrackets>false</spaceInsideBrackets>
+              <spaceInsideParentheses>false</spaceInsideParentheses>
+              <preserveSpaceBeforeArguments>false</preserveSpaceBeforeArguments>
+              <spacesWithinPatternBinders>true</spacesWithinPatternBinders>
+              <!-- Scaladoc -->
+              <multilineScaladocCommentsStartOnFirstLine>false</multilineScaladocCommentsStartOnFirstLine>
+              <placeScaladocAsterisksBeneathSecondAsterisk>false</placeScaladocAsterisksBeneathSecondAsterisk>
+              <!-- Miscellaneous -->
+              <formatXml>true</formatXml>
+              <rewriteArrowSymbols>false</rewriteArrowSymbols>
+              <preserveDanglingCloseParenthesis>false</preserveDanglingCloseParenthesis>
+              <compactControlReadability>false</compactControlReadability>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>

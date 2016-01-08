@@ -34,7 +34,7 @@ class ProjectSpec extends Specification {
   "Project" should {
 
     "be treated as SExpr" in {
-      val project = Project("name","path", "cache", "version", "java-home", List("-first", "-second"), List(SubProject(
+      val project = Project("name", "path", "cache", "version", "java-home", List("-first", "-second"), List(SubProject(
         "name",
         "version",
         List("runtime-dep-1", "runtime-dep-2"),
@@ -90,8 +90,8 @@ class ProjectSpec extends Specification {
                        | :formatting-prefs
                        |   ())""".stripMargin
 
-        val output = project.as[SExpr].as[String]
-        output must equalTo(expected)
+      val output = project.as[SExpr].as[String]
+      output must equalTo(expected)
     }
   }
 }
