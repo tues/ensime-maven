@@ -41,6 +41,17 @@
     <url>http://github.com/ensime/ensime-maven/issues</url>
   </issueManagement>
 
+  <distributionManagement>
+	<snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+	</snapshotRepository>
+	<repository>
+      <id>sonatype-nexus</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+	</repository>
+  </distributionManagement>
+
   <properties>
     <mavenVersion>2.0.11</mavenVersion>
     <maven.test.jvmargs>-Xmx1024m</maven.test.jvmargs>
@@ -137,6 +148,20 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-gpg-plugin</artifactId>
+		<version>1.5</version>
+		<executions>
+          <execution>
+			<id>sign-artifacts</id>
+			<phase>verify</phase>
+			<goals>
+              <goal>sign</goal>
+			</goals>
+          </execution>
+		</executions>
       </plugin>
     </plugins>
     <pluginManagement>
