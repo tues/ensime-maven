@@ -9,5 +9,5 @@ build:
     - git log | head -n 20
     - mvn clean install -Dgpg.skip=true
     - if [ "$CI_BRANCH" = "master" ] ; then
-        mvn publish -Dgpg.skip=true;
+        mvn deploy -Dgpg.skip=true;
       fi
