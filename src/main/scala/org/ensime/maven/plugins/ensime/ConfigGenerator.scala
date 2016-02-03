@@ -133,16 +133,23 @@ class ConfigGenerator(
               if (artifactIdToModule.contains(artifactId)) {
                 (dependsOnModules + artifactIdToModule(artifactId), runtimeDeps, compileDeps, testDeps)
               } else {
-                val path = artifact.getFile.getAbsolutePath
-                artifact.getScope match {
-                  case Artifact.SCOPE_PROVIDED =>
-                    (dependsOnModules, runtimeDeps, path :: compileDeps, path :: testDeps)
-                  case Artifact.SCOPE_RUNTIME =>
-                    (dependsOnModules, path :: runtimeDeps, compileDeps, path :: testDeps)
-                  case Artifact.SCOPE_TEST =>
-                    (dependsOnModules, runtimeDeps, compileDeps, path :: testDeps)
-                  case _ =>
-                    (dependsOnModules, path :: runtimeDeps, path :: compileDeps, path :: testDeps)
+                // make sure we're only loading jars, otherwise ensime will have
+                // issues. Not sure if we should include `ejb-client` or not,
+                // but definitely throws errors on `pom` files
+                if (artifact.getType().matches("(test-)?jar")) {
+                  val path = artifact.getFile.getAbsolutePath
+                  artifact.getScope match {
+                    case Artifact.SCOPE_PROVIDED =>
+                      (dependsOnModules, runtimeDeps, path :: compileDeps, path :: testDeps)
+                    case Artifact.SCOPE_RUNTIME =>
+                      (dependsOnModules, path :: runtimeDeps, compileDeps, path :: testDeps)
+                    case Artifact.SCOPE_TEST =>
+                      (dependsOnModules, runtimeDeps, compileDeps, path :: testDeps)
+                    case _ =>
+                      (dependsOnModules, path :: runtimeDeps, path :: compileDeps, path :: testDeps)
+                  }
+                } else {
+                  (dependsOnModules, runtimeDeps, compileDeps, testDeps)
                 }
               }
           }
