@@ -46,7 +46,7 @@ class SExprEmitter(val sexpr: SExpr) {
   }
 
   @inline
-  private def emitSString(out: Output, value: String) = out.write("\"" + value + "\"")
+  private def emitSString(out: Output, value: String) = out.write("\"" + value.replace("\\", "/") + "\"")
 
   @inline
   private def emitSInt(out: Output, value: Int) = out.write(value.toString)

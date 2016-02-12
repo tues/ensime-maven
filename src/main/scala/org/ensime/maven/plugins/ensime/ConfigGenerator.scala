@@ -23,6 +23,8 @@ import java.util.Properties
 import java.util.{ Set => JSet }
 import scala.collection.JavaConversions._
 import scala.collection.immutable.ListSet
+import scala.sys.process._
+import scala.util._
 import scalax.io.JavaConverters._
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.project.MavenProject
@@ -47,19 +49,16 @@ class ConfigGenerator(
       // manual
       sys.env.get("JDK_HOME"),
       sys.env.get("JAVA_HOME"),
-      // osx
-      Option("/usr/libexec/java_home"),
       // fallback
       sys.props.get("java.home").map(new File(_).getParent),
-      sys.props.get("java.home")).flatten.map { n =>
-        // Make sure we're dealing with the JDK by seeing if `javac` exists
-        new File(n.trim + File.separator + "bin" + File.separator + "javac")
-      }.filter(_.exists())
-      .map(_.getParentFile.getParent)
-      .headOption.getOrElse(
+      sys.props.get("java.home"),
+      // osx
+      Try("/usr/libexec/java_home".!!.trim).toOption).flatten.filter { n =>
+        new File(n + "/lib/tools.jar").exists
+      }.headOption.getOrElse(
         throw new FileNotFoundException(
-          """Could not automatically find the JRE home directory.
-        |You must explicitly set JDK_HOME or JAVA_HOME.""".stripMargin))
+          """Could not automatically find the JDK/lib/tools.jar.
+      |You must explicitly set JDK_HOME or JAVA_HOME.""".stripMargin))
   }
 
   /**
