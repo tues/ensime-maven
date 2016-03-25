@@ -41,8 +41,8 @@ class ProjectSpec extends Specification {
         List("compile-dep-1", "compile-dep-2"),
         List("test-dep-1", "test-dpe-2"),
         List("source-root-1", "source-root-2"),
-        "target",
-        "test-target",
+        List("target"),
+        List("test-target"),
         List("depends-1", "depends-2"),
         List("depends-src-1", "depends-src-2"))),
         FormatterPreferences())
@@ -77,10 +77,10 @@ class ProjectSpec extends Specification {
                        |     :source-roots
                        |       ("source-root-1"
                        |        "source-root-2")
-                       |     :target
-                       |       "target"
-                       |     :test-target
-                       |       "test-target"
+                       |     :targets
+                       |       ("target")
+                       |     :test-targets
+                       |       ("test-target")
                        |     :depends-on-modules
                        |       ("depends-1"
                        |        "depends-2")))

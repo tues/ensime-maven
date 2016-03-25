@@ -172,8 +172,8 @@ class ConfigGenerator(
           //module.getBuild.getOutputDirectory
           //} :+ project.getBuild.getTestOutputDirectory),
           scalaRoots ++: sourceRoots,
-          project.getBuild.getOutputDirectory,
-          project.getBuild.getTestOutputDirectory,
+          List(project.getBuild.getOutputDirectory),
+          List(project.getBuild.getTestOutputDirectory),
           dependsOnModules.toList.map(_.getArtifactId),
           allDeps.foldLeft(List[String]()) { (output, dep) =>
             val sourceJar = jarPattern.replaceFirstIn(dep, "-sources.jar")
