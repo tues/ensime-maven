@@ -35,8 +35,8 @@ case class SubProject(
   compileDeps: List[String],
   testDeps: List[String],
   sourceRoots: List[String],
-  target: String,
-  testTarget: String,
+  targets: List[String],
+  testTargets: List[String],
   dependsOnModules: List[String],
   referenceSourceRoots: List[String])
 
@@ -60,8 +60,8 @@ object SubProject {
         (SKeyword("compile-deps") -> SList(subproject.compileDeps.map(SString(_)))),
         (SKeyword("test-deps") -> SList(subproject.testDeps.map(SString(_)))),
         (SKeyword("source-roots") -> SList(subproject.sourceRoots.map(SString(_)))),
-        (SKeyword("target") -> SString(subproject.target)),
-        (SKeyword("test-target") -> SString(subproject.testTarget)),
+        (SKeyword("targets") -> SList(subproject.targets.map(SString(_)))),
+        (SKeyword("test-targets") -> SList(subproject.testTargets.map(SString(_)))),
         (SKeyword("reference-source-roots") -> SList(subproject.referenceSourceRoots.map(SString(_)))),
         (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModules.map(SString(_))))))
   }
