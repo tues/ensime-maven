@@ -17,8 +17,7 @@ package org.ensime.maven.plugins.ensime
 package model
 
 import java.util.Properties
-
-import org.ensime.maven.plugins.ensime.sexpr.SExpr
+import org.ensime.maven.plugins.ensime.sexpr.{ SExpr, SString }
 import org.ensime.maven.plugins.ensime.sexpr.SKeyword
 import org.ensime.maven.plugins.ensime.sexpr.SMap
 
@@ -26,35 +25,39 @@ import org.ensime.maven.plugins.ensime.sexpr.SMap
  * Represents formatter preferences.
  * @author ueshin
  */
-case class FormatterPreferences(
+class FormatterPreferences(
 
     // Indentation & Alignment
-    indentSpaces: Option[Int] = None,
-    indentWithTabs: Option[Boolean] = None,
-    alignParameters: Option[Boolean] = None,
-    doubleIndentClassDeclaration: Option[Boolean] = None,
-    alignSingleLineCaseStatements: Option[Boolean] = None,
-    alignSingleLineCaseStatements_maxArrowIndent: Option[Int] = None,
-    indentPackageBlocks: Option[Boolean] = None,
-    indentLocalDefs: Option[Boolean] = None,
+    val indentSpaces: Option[Int] = None,
+    val indentWithTabs: Option[Boolean] = None,
+    val alignParameters: Option[Boolean] = None,
+    val alignArguments: Option[Boolean] = None,
+    val doubleIndentClassDeclaration: Option[Boolean] = None,
+    val doubleIndentMethodDeclaration: Option[Boolean] = None,
+    val alignSingleLineCaseStatements: Option[Boolean] = None,
+    val alignSingleLineCaseStatements_maxArrowIndent: Option[Int] = None,
+    val indentPackageBlocks: Option[Boolean] = None,
+    val indentLocalDefs: Option[Boolean] = None,
 
     // Spaces
-    spaceBeforeColon: Option[Boolean] = None,
-    compactStringConcatenation: Option[Boolean] = None,
-    spaceInsideBrackets: Option[Boolean] = None,
-    spaceInsideParentheses: Option[Boolean] = None,
-    preserveSpaceBeforeArguments: Option[Boolean] = None,
-    spacesWithinPatternBinders: Option[Boolean] = None,
+    val spaceBeforeColon: Option[Boolean] = None,
+    val compactStringConcatenation: Option[Boolean] = None,
+    val spaceInsideBrackets: Option[Boolean] = None,
+    val spaceInsideParentheses: Option[Boolean] = None,
+    val preserveSpaceBeforeArguments: Option[Boolean] = None,
+    val spacesWithinPatternBinders: Option[Boolean] = None,
+    val spacesAroundMultiImports: Option[Boolean] = None,
 
     // Scaladoc
-    multilineScaladocCommentsStartOnFirstLine: Option[Boolean] = None,
-    placeScaladocAsterisksBeneathSecondAsterisk: Option[Boolean] = None,
+    val multilineScaladocCommentsStartOnFirstLine: Option[Boolean] = None,
+    val placeScaladocAsterisksBeneathSecondAsterisk: Option[Boolean] = None,
 
     // Miscellaneous
-    formatXml: Option[Boolean] = None,
-    rewriteArrowSymbols: Option[Boolean] = None,
-    preserveDanglingCloseParenthesis: Option[Boolean] = None,
-    compactControlReadability: Option[Boolean] = None) {
+    val formatXml: Option[Boolean] = None,
+    val rewriteArrowSymbols: Option[Boolean] = None,
+    val danglingCloseParenthesis: Option[String] = None,
+    val compactControlReadability: Option[Boolean] = None,
+    val newlineAtEndOfFile: Option[Boolean] = None) {
 }
 
 /**
@@ -62,6 +65,12 @@ case class FormatterPreferences(
  * @author ueshin
  */
 object FormatterPreferences {
+
+  /**
+   * Creates a default instance
+   * @return new instance
+   */
+  def apply() = new FormatterPreferences()
 
   /**
    * Creates a new instance from Properties.
@@ -75,7 +84,9 @@ object FormatterPreferences {
       indentSpaces = Option(properties.getProperty("indentSpaces")).map(_.toInt),
       indentWithTabs = Option(properties.getProperty("indentWithTabs")).map(_.toBoolean),
       alignParameters = Option(properties.getProperty("alignParameters")).map(_.toBoolean),
+      alignArguments = Option(properties.getProperty("alignArguments")).map(_.toBoolean),
       doubleIndentClassDeclaration = Option(properties.getProperty("doubleIndentClassDeclaration")).map(_.toBoolean),
+      doubleIndentMethodDeclaration = Option(properties.getProperty("doubleIndentMethodDeclaration")).map(_.toBoolean),
       alignSingleLineCaseStatements = Option(properties.getProperty("alignSingleLineCaseStatements")).map(_.toBoolean),
       alignSingleLineCaseStatements_maxArrowIndent = Option(properties.getProperty("alignSingleLineCaseStatements.maxArrowIndent")).map(_.toInt),
       indentPackageBlocks = Option(properties.getProperty("indentPackageBlocks")).map(_.toBoolean),
@@ -88,6 +99,7 @@ object FormatterPreferences {
       spaceInsideParentheses = Option(properties.getProperty("spaceInsideParentheses")).map(_.toBoolean),
       preserveSpaceBeforeArguments = Option(properties.getProperty("preserveSpaceBeforeArguments")).map(_.toBoolean),
       spacesWithinPatternBinders = Option(properties.getProperty("spacesWithinPatternBinders")).map(_.toBoolean),
+      spacesAroundMultiImports = Option(properties.getProperty("spacesAroundMultiImports")).map(_.toBoolean),
 
       // Scaladoc
       multilineScaladocCommentsStartOnFirstLine = Option(properties.getProperty("multilineScaladocCommentsStartOnFirstLine")).map(_.toBoolean),
@@ -96,8 +108,9 @@ object FormatterPreferences {
       // Miscellaneous
       formatXml = Option(properties.getProperty("formatXml")).map(_.toBoolean),
       rewriteArrowSymbols = Option(properties.getProperty("rewriteArrowSymbols")).map(_.toBoolean),
-      preserveDanglingCloseParenthesis = Option(properties.getProperty("preserveDanglingCloseParenthesis")).map(_.toBoolean),
-      compactControlReadability = Option(properties.getProperty("compactControlReadability")).map(_.toBoolean))
+      danglingCloseParenthesis = Option(properties.getProperty("danglingCloseParenthesis")).map(_.toString),
+      compactControlReadability = Option(properties.getProperty("compactControlReadability")).map(_.toBoolean),
+      newlineAtEndOfFile = Option(properties.getProperty("newlineAtEndOfFile")).map(_.toBoolean))
   }
 
   /**
@@ -111,7 +124,9 @@ object FormatterPreferences {
         fp.indentSpaces.map(i => ("indentSpaces".as[SKeyword], i.as[SExpr])).toList :::
           fp.indentWithTabs.map(b => ("indentWithTabs".as[SKeyword], b.as[SExpr])).toList :::
           fp.alignParameters.map(b => ("alignParameters".as[SKeyword], b.as[SExpr])).toList :::
+          fp.alignArguments.map(b => ("alignArguments".as[SKeyword], b.as[SExpr])).toList :::
           fp.doubleIndentClassDeclaration.map(b => ("doubleIndentClassDeclaration".as[SKeyword], b.as[SExpr])).toList :::
+          fp.doubleIndentMethodDeclaration.map(b => ("doubleIndentMethodDeclaration".as[SKeyword], b.as[SExpr])).toList :::
           fp.alignSingleLineCaseStatements.map(b => ("alignSingleLineCaseStatements".as[SKeyword], b.as[SExpr])).toList :::
           fp.alignSingleLineCaseStatements_maxArrowIndent.map(i => ("alignSingleLineCaseStatements.maxArrowIndent".as[SKeyword], i.as[SExpr])).toList :::
           fp.indentPackageBlocks.map(b => ("indentPackageBlocks".as[SKeyword], b.as[SExpr])).toList :::
@@ -124,6 +139,7 @@ object FormatterPreferences {
           fp.spaceInsideParentheses.map(b => ("spaceInsideParentheses".as[SKeyword], b.as[SExpr])).toList :::
           fp.preserveSpaceBeforeArguments.map(b => ("preserveSpaceBeforeArguments".as[SKeyword], b.as[SExpr])).toList :::
           fp.spacesWithinPatternBinders.map(b => ("spacesWithinPatternBinders".as[SKeyword], b.as[SExpr])).toList :::
+          fp.spacesAroundMultiImports.map(b => ("spacesAroundMultiImports".as[SKeyword], b.as[SExpr])).toList :::
 
           // Scaladoc
           fp.multilineScaladocCommentsStartOnFirstLine.map(b => ("multilineScaladocCommentsStartOnFirstLine".as[SKeyword], b.as[SExpr])).toList :::
@@ -132,8 +148,9 @@ object FormatterPreferences {
           // Miscellaneous
           fp.formatXml.map(b => ("formatXml".as[SKeyword], b.as[SExpr])).toList :::
           fp.rewriteArrowSymbols.map(b => ("rewriteArrowSymbols".as[SKeyword], b.as[SExpr])).toList :::
-          fp.preserveDanglingCloseParenthesis.map(b => ("preserveDanglingCloseParenthesis".as[SKeyword], b.as[SExpr])).toList :::
-          fp.compactControlReadability.map(b => ("compactControlReadability".as[SKeyword], b.as[SExpr])).toList)
+          fp.danglingCloseParenthesis.map(b => ("danglingCloseParenthesis".as[SKeyword], SString(b))).toList :::
+          fp.compactControlReadability.map(b => ("compactControlReadability".as[SKeyword], b.as[SExpr])).toList :::
+          fp.newlineAtEndOfFile.map(b => ("newlineAtEndOfFile".as[SKeyword], b.as[SExpr])).toList)
     }
   }
 }
