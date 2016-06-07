@@ -182,6 +182,14 @@ class ConfigGenerator(
             } else {
               output
             }
+          },
+          allDeps.foldLeft(List[String]()) { (output, dep) =>
+            val docJar = jarPattern.replaceFirstIn(dep, "-javadoc.jar")
+            if (new java.io.File(docJar).exists) {
+              docJar :: output
+            } else {
+              output
+            }
           })
       }
     }
