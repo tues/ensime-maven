@@ -16,12 +16,12 @@ Configure your `~/.m2/settings.xml` file so that maven is aware of the plugin gr
 
 ## Generate `.ensime` file
 
-### (Optional) Download project sources
+### (Optional) Download project sources and javadocs
 
 The ensime-maven plugin will tell ensime about the location of source jars, but won't automatically download them for you. You can get maven to do this by running:
 
 ``` shell
-mvn dependency:sources
+mvn dependency:sources && mvn dependency:resolve -Dclassifier=javadoc
 ```
 
 ### Generate the `.ensime` file
