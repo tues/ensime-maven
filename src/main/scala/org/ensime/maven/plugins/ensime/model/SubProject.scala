@@ -38,7 +38,8 @@ case class SubProject(
   targets: List[String],
   testTargets: List[String],
   dependsOnModules: List[String],
-  referenceSourceRoots: List[String])
+  referenceSourceRoots: List[String],
+  docJars: List[String])
 
 /**
  * A companion object for {@link SubProject}.
@@ -63,6 +64,7 @@ object SubProject {
         (SKeyword("targets") -> SList(subproject.targets.map(SString(_)))),
         (SKeyword("test-targets") -> SList(subproject.testTargets.map(SString(_)))),
         (SKeyword("reference-source-roots") -> SList(subproject.referenceSourceRoots.map(SString(_)))),
+        (SKeyword("doc-jars") -> SList(subproject.docJars.map(SString(_)))),
         (SKeyword("depends-on-modules") -> SList(subproject.dependsOnModules.map(SString(_))))))
   }
 }

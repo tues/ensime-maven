@@ -44,7 +44,8 @@ class ProjectSpec extends Specification {
         List("target"),
         List("test-target"),
         List("depends-1", "depends-2"),
-        List("depends-src-1", "depends-src-2"))),
+        List("depends-src-1", "depends-src-2"),
+        List("depends-doc-1", "depends-doc-2"))),
         FormatterPreferences())
 
       val expected = """(:root-dir
@@ -87,6 +88,9 @@ class ProjectSpec extends Specification {
                        |     :reference-source-roots
                        |       ("depends-src-1"
                        |        "depends-src-2")))
+                       |     :docJars
+                       |       ("depends-doc-1"
+                       |        "depends-doc-2")))
                        | :formatting-prefs
                        |   ())""".stripMargin
 

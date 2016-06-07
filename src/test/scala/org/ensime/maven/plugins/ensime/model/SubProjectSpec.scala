@@ -44,7 +44,8 @@ class SubProjectSpec extends Specification {
         List("targets"),
         List("test-targets"),
         List("depends-1", "depends-2"),
-        List("depends-src-1", "depends-src-2"))
+        List("depends-src-1", "depends-src-2"),
+        List("depenfs-doc-1", "depends-doc-2"))
       subproject.as[SExpr].as[String] must equalTo("""(:name
                                                      |   "name"
                                                      | :module-name
@@ -70,7 +71,10 @@ class SubProjectSpec extends Specification {
                                                      |    "depends-2")
                                                      | :reference-source-roots
                                                      |   ("depends-src-1"
-                                                     |   "depends-src-2"))""".stripMargin)
+                                                     |   "depends-src-2")
+                                                     | :doc-jars
+                                                     |   ("depends-doc-1"
+                                                     |   "depends-doc-2"))""".stripMargin)
     }
   }
 }
