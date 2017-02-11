@@ -3,6 +3,7 @@
 # ENSIME Maven Plugin
 
 This [maven](https://maven.apache.org/) plugin generates a `.ensime` file for use with an [ENSIME server](http://github.com/ensime/ensime-server).
+This plugin can generate `Ensime 2.0` config files.
 
 ## Installation
 
@@ -13,6 +14,19 @@ Configure your `~/.m2/settings.xml` file so that maven is aware of the plugin gr
     <pluginGroup>org.ensime.maven.plugins</pluginGroup>
   </pluginGroups>
 ```
+
+Then add the following to your `pom` file:
+
+
+```xml
+<plugin>
+  <groupId>org.ensime.maven.plugins</groupId>
+  <artifactId>ensime-maven</artifactId>
+  <version>0.0.6</version>
+</plugin>
+```
+
+
 
 ## Generate `.ensime` file
 
@@ -32,10 +46,10 @@ To actually generate the `.ensime` file from your pom, run:
 mvn ensime:generate
 ```
 
-### (Optional) Initial project compilation
-
-To prevent some surprises when working with a new project in ensime, do a full compile before starting up ensime for the first time:
-
-``` shell
-mvn compile test-compile
-```
+<!-- ### (Optional) Initial project compilation -->
+<!--  -->
+<!-- To prevent some surprises when working with a new project in ensime, do a full compile before starting up ensime for the first time: -->
+<!--  -->
+<!-- ``` shell -->
+<!-- mvn compile test-compile -->
+<!-- ``` -->

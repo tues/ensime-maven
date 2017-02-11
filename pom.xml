@@ -4,7 +4,7 @@
   <groupId>org.ensime.maven.plugins</groupId>
   <artifactId>ensime-maven</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>0.0.6-SNAPSHOT</version>
+  <version>0.0.6</version>
   <name>ensime-maven</name>
 
   <inceptionYear>2012</inceptionYear>
@@ -29,6 +29,13 @@
       <url>http://happy-camper.st/</url>
       <organization>Happy-Camper Street</organization>
       <timezone>+9</timezone>
+    </developer>
+    <developer>
+      <id>amanjpro</id>
+      <name>Amanj Sherwany</name>
+      <email>sherwany.amanj@gmail.com</email>
+      <url>http://amanj.me</url>
+      <timezone>-5</timezone>
     </developer>
   </developers>
   <scm>
