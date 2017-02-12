@@ -38,7 +38,7 @@ Then add the following to your `pom` file:
 <!-- mvn dependency:sources && mvn dependency:resolve -Dclassifier=javadoc -->
 <!-- ``` -->
 
-### Generate the `.ensime` file
+<!-- ### Generate the `.ensime` file -->
 
 To actually generate the `.ensime` file from your pom, run:
 
