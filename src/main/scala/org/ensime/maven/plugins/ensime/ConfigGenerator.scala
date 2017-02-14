@@ -26,7 +26,7 @@ import scala.util._
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.project.MavenProject
-import org.apache.maven.model.{ Plugin, Repository }
+import org.apache.maven.model.{ Plugin, Repository, Dependency => MDependency }
 import org.eclipse.aether.{ RepositorySystemSession, RepositorySystem }
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.resolution.{
@@ -301,10 +301,11 @@ class ConfigGenerator(
    * Get the scala-version for this project.  Uses scala.version as the key.
    * If you want a blue shed, get out a can of paint :)
    * @return String containing the scala version
-   * @author parsnips
    */
   private def getScalaVersion(): String = {
-    Option(project.getProperties().getProperty("scala.version")).getOrElse("2.10.6") // So arbitrary.
+    project.getDependencies.asInstanceOf[JList[MDependency]].asScala.toList
+      .find(d => d.getGroupId == "org.scala-lang" && d.getArtifactId == "scala-library")
+      .map(_.getVersion).getOrElse("2.10.6") // So arbitrary.
   }
 
   private def getEnsimeProjects(): List[EnsimeProject] = {
