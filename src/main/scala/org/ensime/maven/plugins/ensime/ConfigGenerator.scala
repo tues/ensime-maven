@@ -26,14 +26,15 @@ import scala.util._
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.apache.maven.artifact.Artifact
 import org.apache.maven.project.MavenProject
-import org.apache.maven.model.{ Plugin, Repository }
+import org.apache.maven.model.{ Plugin, Repository, Dependency => MDependency }
 import org.eclipse.aether.{ RepositorySystemSession, RepositorySystem }
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.resolution.{
   ArtifactRequest,
   ArtifactResult,
   DependencyRequest,
-  ArtifactResolutionException
+  ArtifactResolutionException,
+  DependencyResolutionException
 }
 import org.eclipse.aether.collection.CollectRequest
 import org.eclipse.aether.graph.Dependency
@@ -108,23 +109,33 @@ class ConfigGenerator(
   private def artifactRequest(art: DefaultArtifact) =
     new ArtifactRequest(art, remoteRepositories, null)
 
-  private def resolve(art: DefaultArtifact) =
-    repoSystem.resolveArtifact(session,
-      artifactRequest(art)).getArtifact.getFile
+  private def resolve(art: DefaultArtifact): Option[File] =
+    Try(repoSystem.resolveArtifact(session,
+      artifactRequest(art)).getArtifact.getFile).toOption
 
   private def resolveAll(art: DefaultArtifact) = {
     val dependency = new Dependency(art, "compile")
 
     val collectRequest = new CollectRequest(dependency, remoteRepositories)
 
-    val node = repoSystem.collectDependencies(session, collectRequest).getRoot()
 
     val dependencyRequest = new DependencyRequest()
-    dependencyRequest.setRoot(node)
+    dependencyRequest.setCollectRequest(collectRequest)
 
-    repoSystem.resolveDependencies(session, dependencyRequest)
-      .getArtifactResults.asInstanceOf[JList[ArtifactResult]]
-      .asScala.map(_.getArtifact.getFile).toSet
+    try {
+      repoSystem.resolveDependencies(session, dependencyRequest)
+        .getArtifactResults.asInstanceOf[JList[ArtifactResult]]
+        .asScala.map(_.getArtifact.getFile).toSet
+    } catch {
+      case arex: ArtifactResolutionException =>
+        arex.getResults.asInstanceOf[JList[ArtifactResult]]
+          .asScala.map(_.getArtifact.getFile).toSet
+      case drex: DependencyResolutionException =>
+        Option(drex.getResult).map { r =>
+          r.getArtifactResults.asInstanceOf[JList[ArtifactResult]]
+            .asScala.flatMap(a => Option(a.getArtifact).map(_.getFile)).toSet
+        }.getOrElse(Set.empty)
+    }
   }
 
   private def partialVersion() = {
@@ -137,15 +148,18 @@ class ConfigGenerator(
       resolve(artifact(org, "scalap", version)),
       resolve(artifact(org, "scala-compiler", version)),
       resolve(artifact(org, "scala-library", version)),
-      resolve(artifact(org, "scala-reflect", version)))
+      resolve(artifact(org, "scala-reflect", version))).flatten
 
   private def resolveEnsimeJars(org: String, ensime: String): Set[File] = {
     val scala = {
       val (major, minor) = partialVersion
       s"$major.$minor"
     }
-    resolveAll(artifact("org.ensime", s"server_$scala", ensimeServerVersion)) +
-      resolve(artifact(org, "scalap", systemScalaVersion))
+
+    val ensimeServerArtifacts = resolveAll(artifact("org.ensime", s"server_$scala", ensimeServerVersion))
+    resolve(artifact(org, "scalap", systemScalaVersion)).map { f =>
+      ensimeServerArtifacts + f
+    }.getOrElse(ensimeServerArtifacts)
   }
 
   private def ensimeProjectsToModule(p: Iterable[EnsimeProject]): EnsimeModule = {
@@ -287,10 +301,11 @@ class ConfigGenerator(
    * Get the scala-version for this project.  Uses scala.version as the key.
    * If you want a blue shed, get out a can of paint :)
    * @return String containing the scala version
-   * @author parsnips
    */
   private def getScalaVersion(): String = {
-    Option(project.getProperties().getProperty("scala.version")).getOrElse("2.10.6") // So arbitrary.
+    project.getDependencies.asInstanceOf[JList[MDependency]].asScala.toList
+      .find(d => d.getGroupId == "org.scala-lang" && d.getArtifactId == "scala-library")
+      .map(_.getVersion).getOrElse("2.10.6") // So arbitrary.
   }
 
   private def getEnsimeProjects(): List[EnsimeProject] = {
