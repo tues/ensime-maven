@@ -118,7 +118,6 @@ class ConfigGenerator(
 
     val collectRequest = new CollectRequest(dependency, remoteRepositories)
 
-
     val dependencyRequest = new DependencyRequest()
     dependencyRequest.setCollectRequest(collectRequest)
 
@@ -163,12 +162,12 @@ class ConfigGenerator(
   }
 
   private def ensimeProjectsToModule(p: Iterable[EnsimeProject]): EnsimeModule = {
-    val name = p.head.id.project
+    val name = p.head.id.getProject
     val deps = for {
       s <- p
       d <- s.depends
-    } yield d.project
-    val (mains, tests) = p.toSet.partition(_.id.config == "compile")
+    } yield d.getProject
+    val (mains, tests) = p.toSet.partition(_.id.getConfig == "compile")
     val mainSources = mains.flatMap(_.sources)
     val mainTargets = mains.flatMap(_.targets)
     val mainJars = mains.flatMap(_.libraryJars)
@@ -312,14 +311,14 @@ class ConfigGenerator(
     val modules = (project :: project.getCollectedProjects.asInstanceOf[JList[MavenProject]].asScala.toList)
 
     modules.map { module =>
-      val projectId = EnsimeProjectId(project.getArtifactId, Option(project.getDefaultGoal).getOrElse("compile"))
+      val projectId = new EnsimeProjectId(project.getArtifactId, Option(project.getDefaultGoal).getOrElse("compile"))
       val dependencyArtifacts =
         project.getDependencyArtifacts.asInstanceOf[JSet[Artifact]].asScala.toSet
 
       // This only gets the direct dependencies, and we filter all the
       // dependencies that are not a subproject of this potentially
       // multiproject project
-      val depends = dependencyArtifacts.filter(d => modules.exists(m => m.getId == d.getId)).toSeq.map(d => EnsimeProjectId(d.getArtifactId, "compile"))
+      val depends = dependencyArtifacts.filter(d => modules.exists(m => m.getId == d.getId)).toSeq.map(d => new EnsimeProjectId(d.getArtifactId, "compile"))
 
       val sources = {
         val scalacPlugin =
@@ -402,7 +401,7 @@ class ConfigGenerator(
 
     val subProjects = getEnsimeProjects
 
-    val modules = subProjects.groupBy(_.id.project).mapValues(ensimeProjectsToModule)
+    val modules = subProjects.groupBy(_.id.getProject).mapValues(ensimeProjectsToModule)
     val javaSrc = {
       val file = new File(getJavaHome.getAbsolutePath / "src.zip")
       file match {
