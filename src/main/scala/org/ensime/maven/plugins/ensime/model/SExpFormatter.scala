@@ -61,20 +61,20 @@ object SExpFormatter {
 
   // a lot of legacy key names and conventions
   def toSExp(c: EnsimeConfig): String = s"""(
- :root-dir ${toSExp(c.root)}
- :cache-dir ${toSExp(c.cacheDir)}
- :scala-compiler-jars ${fsToSExp(c.scalaCompilerJars)}
- :ensime-server-jars ${fsToSExp(c.ensimeServerJars)}
- :name "${c.name}"
- :java-home ${toSExp(c.javaHome)}
- :java-flags ${ssToSExp(c.javaFlags)}
- :java-sources ${fsToSExp(c.javaSrc)}
- :java-compiler-args ${ssToSExp(c.javacOptions)}
- :reference-source-roots ${fsToSExp(c.javaSrc)}
- :scala-version ${toSExp(c.scalaVersion)}
- :compiler-args ${ssToSExp(c.scalacOptions)}
- :subprojects ${msToSExp(c.modules.values)}
- :projects ${psToSExp(c.projects)}
+ :root-dir ${toSExp(c.getRoot)}
+ :cache-dir ${toSExp(c.getCacheDir)}
+ :scala-compiler-jars ${fsToSExp(c.getScalaCompilerJars.asScala)}
+ :ensime-server-jars ${fsToSExp(c.getEnsimeServerJars.asScala)}
+ :name "${c.getName}"
+ :java-home ${toSExp(c.getJavaHome)}
+ :java-flags ${ssToSExp(c.getJavaFlags.asScala)}
+ :java-sources ${fsToSExp(c.getJavaSrc.asScala)}
+ :java-compiler-args ${ssToSExp(c.getJavacOptions.asScala)}
+ :reference-source-roots ${fsToSExp(c.getJavaSrc.asScala)}
+ :scala-version ${toSExp(c.getScalaVersion)}
+ :compiler-args ${ssToSExp(c.getScalacOptions.asScala)}
+ :subprojects ${msToSExp(c.getModules.asScala.values)}
+ :projects ${psToSExp(c.getProjects.asScala)}
 )"""
 
   // a lot of legacy key names and conventions
