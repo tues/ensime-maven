@@ -17,6 +17,7 @@ package org.ensime.maven.plugins.ensime
 package model
 
 import java.io.File
+import scala.collection.JavaConverters._
 
 object SExpFormatter {
 
@@ -48,7 +49,7 @@ object SExpFormatter {
 
   private def psToSExp(ss: Iterable[EnsimeProject]): String =
     if (ss.isEmpty) "nil"
-    else ss.toSeq.sortBy(_.id.toString).map(toSExp).mkString("(", " ", ")")
+    else ss.toSeq.sortBy(_.getId.toString).map(toSExp).mkString("(", " ", ")")
 
   private def fToSExp(key: String, op: Option[File]): String =
     op.map { f => s":$key ${toSExp(f)}" }.getOrElse("")
@@ -90,15 +91,15 @@ object SExpFormatter {
    :reference-source-roots ${fsToSExp(m.sourceJars)})"""
 
   private def toSExp(p: EnsimeProject): String = s"""(
-    :id ${toSExp(p.id)}
-    :depends ${idsToSExp(p.depends)}
-    :sources ${fsToSExp(p.sources)}
-    :targets ${fsToSExp(p.targets)}
-    :scalac-options ${ssToSExp(p.scalacOptions)}
-    :javac-options ${ssToSExp(p.javacOptions)}
-    :library-jars ${fsToSExp(p.libraryJars)}
-    :library-sources ${fsToSExp(p.librarySources)}
-    :library-docs ${fsToSExp(p.libraryDocs)})"""
+    :id ${toSExp(p.getId)}
+    :depends ${idsToSExp(p.getDependsOn.asScala)}
+    :sources ${fsToSExp(p.getSources.asScala)}
+    :targets ${fsToSExp(p.getTargets.asScala)}
+    :scalac-options ${ssToSExp(p.getScalacOptions.asScala)}
+    :javac-options ${ssToSExp(p.getJavacOptions.asScala)}
+    :library-jars ${fsToSExp(p.getLibraryJars.asScala)}
+    :library-sources ${fsToSExp(p.getLibrarySources.asScala)}
+    :library-docs ${fsToSExp(p.getLibraryDocs.asScala)})"""
 
   private def toSExp(id: EnsimeProjectId): String =
     s"""(:project ${toSExp(id.getProject)} :config ${toSExp(id.getConfig)})"""

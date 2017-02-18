@@ -162,20 +162,20 @@ class ConfigGenerator(
   }
 
   private def ensimeProjectsToModule(p: Iterable[EnsimeProject]): EnsimeModule = {
-    val name = p.head.id.getProject
+    val name = p.head.getId.getProject
     val deps = for {
       s <- p
-      d <- s.depends
+      d <- s.getDependsOn.asScala
     } yield d.getProject
-    val (mains, tests) = p.toSet.partition(_.id.getConfig == "compile")
-    val mainSources = mains.flatMap(_.sources)
-    val mainTargets = mains.flatMap(_.targets)
-    val mainJars = mains.flatMap(_.libraryJars)
-    val testSources = tests.flatMap(_.sources)
-    val testTargets = tests.flatMap(_.targets)
-    val testJars = tests.flatMap(_.libraryJars).toSet -- mainJars
-    val sourceJars = p.flatMap(_.librarySources).toSet
-    val docJars = p.flatMap(_.libraryDocs).toSet
+    val (mains, tests) = p.toSet.partition(_.getId.getConfig == "compile")
+    val mainSources = mains.flatMap(_.getSources.asScala)
+    val mainTargets = mains.flatMap(_.getTargets.asScala)
+    val mainJars = mains.flatMap(_.getLibraryJars.asScala)
+    val testSources = tests.flatMap(_.getSources.asScala)
+    val testTargets = tests.flatMap(_.getTargets.asScala)
+    val testJars = tests.flatMap(_.getLibraryJars.asScala).toSet -- mainJars
+    val sourceJars = p.flatMap(_.getLibrarySources.asScala).toSet
+    val docJars = p.flatMap(_.getLibraryDocs.asScala).toSet
     EnsimeModule(
       name, mainSources, testSources, mainTargets, testTargets, deps.toSet,
       mainJars, Set.empty, testJars, sourceJars, docJars)
@@ -379,9 +379,10 @@ class ConfigGenerator(
           art.getArtifactId, "javadoc", "jar", art.getVersion))
       }
 
-      EnsimeProject(projectId, depends, sources, targets,
-        scalacOptions, javacOptions, libraryJars, librarySources,
-        libraryDocs)
+      new EnsimeProject(projectId, depends.asJava, sources.asJava,
+        targets.asJava, scalacOptions.asJava, javacOptions.asJava,
+        libraryJars.asJava, librarySources.asJava,
+        libraryDocs.asJava)
     }
   }
 
@@ -401,7 +402,8 @@ class ConfigGenerator(
 
     val subProjects = getEnsimeProjects
 
-    val modules = subProjects.groupBy(_.id.getProject).mapValues(ensimeProjectsToModule)
+    val modules = subProjects.groupBy(_.getId.getProject)
+      .mapValues(ensimeProjectsToModule)
     val javaSrc = {
       val file = new File(getJavaHome.getAbsolutePath / "src.zip")
       file match {

@@ -18,17 +18,6 @@ package model
 
 import java.io.File
 
-case class EnsimeProject(
-  val id: EnsimeProjectId,
-  val depends: Seq[EnsimeProjectId],
-  val sources: Set[File],
-  val targets: Set[File],
-  val scalacOptions: List[String],
-  val javacOptions: List[String],
-  val libraryJars: Set[File],
-  val librarySources: Set[File],
-  val libraryDocs: Set[File])
-
 case class EnsimeModule(
     val name: String,
     val mainRoots: Set[File],
