@@ -101,7 +101,7 @@ object SExpFormatter {
     :library-docs ${fsToSExp(p.libraryDocs)})"""
 
   private def toSExp(id: EnsimeProjectId): String =
-    s"""(:project ${toSExp(id.project)} :config ${toSExp(id.config)})"""
+    s"""(:project ${toSExp(id.getProject)} :config ${toSExp(id.getConfig)})"""
 
   private def idsToSExp(ids: Iterable[EnsimeProjectId]): String =
     if (ids.isEmpty) "nil"

@@ -18,10 +18,6 @@ package model
 
 import java.io.File
 
-case class EnsimeProjectId(
-  val project: String,
-  val config: String)
-
 case class EnsimeProject(
   val id: EnsimeProjectId,
   val depends: Seq[EnsimeProjectId],
