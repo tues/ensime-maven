@@ -18,22 +18,6 @@ package model
 
 import java.io.File
 
-case class EnsimeModule(
-    val name: String,
-    val mainRoots: Set[File],
-    val testRoots: Set[File],
-    val targets: Set[File],
-    val testTargets: Set[File],
-    val dependsOnNames: Set[String],
-    val compileJars: Set[File],
-    val runtimeJars: Set[File],
-    val testJars: Set[File],
-    val sourceJars: Set[File],
-    val docJars: Set[File]) {
-  def dependencies(implicit lookup: String => EnsimeModule): Set[EnsimeModule] =
-    dependsOnNames map lookup
-}
-
 case class EnsimeConfig(
   val root: File,
   val cacheDir: File,
