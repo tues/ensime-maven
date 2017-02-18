@@ -45,7 +45,7 @@ object SExpFormatter {
 
   private def msToSExp(ss: Iterable[EnsimeModule]): String =
     if (ss.isEmpty) "nil"
-    else ss.toSeq.sortBy(_.name).map(toSExp).mkString("(", " ", ")")
+    else ss.toSeq.sortBy(_.getName).map(toSExp).mkString("(", " ", ")")
 
   private def psToSExp(ss: Iterable[EnsimeProject]): String =
     if (ss.isEmpty) "nil"
@@ -78,17 +78,20 @@ object SExpFormatter {
 )"""
 
   // a lot of legacy key names and conventions
-  private def toSExp(m: EnsimeModule): String = s"""(
-   :name ${toSExp(m.name)}
-   :source-roots ${fsToSExp((m.mainRoots ++ m.testRoots))}
-   :targets ${fsToSExp(m.targets)}
-   :test-targets ${fsToSExp(m.testTargets)}
-   :depends-on-modules ${ssToSExp(m.dependsOnNames.toList.sorted)}
-   :compile-deps ${fsToSExp(m.compileJars)}
-   :runtime-deps ${fsToSExp(m.runtimeJars)}
-   :test-deps ${fsToSExp(m.testJars)}
-   :doc-jars ${fsToSExp(m.docJars)}
-   :reference-source-roots ${fsToSExp(m.sourceJars)})"""
+  private def toSExp(m: EnsimeModule): String = {
+    val roots = m.getMainRoots.asScala ++ m.getTestRoots.asScala
+    s"""(
+      :name ${toSExp(m.getName)}
+      :source-roots ${fsToSExp(roots)}
+      :targets ${fsToSExp(m.getTargets.asScala)}
+      :test-targets ${fsToSExp(m.getTestTargets.asScala)}
+      :depends-on-modules ${ssToSExp(m.getDependsOnNames.asScala.toList.sorted)}
+      :compile-deps ${fsToSExp(m.getCompileJars.asScala)}
+      :runtime-deps ${fsToSExp(m.getRuntimeJars.asScala)}
+      :test-deps ${fsToSExp(m.getTestJars.asScala)}
+      :doc-jars ${fsToSExp(m.getDocJars.asScala)}
+      :reference-source-roots ${fsToSExp(m.getSourceJars.asScala)})"""
+  }
 
   private def toSExp(p: EnsimeProject): String = s"""(
     :id ${toSExp(p.getId)}

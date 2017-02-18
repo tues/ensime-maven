@@ -176,9 +176,10 @@ class ConfigGenerator(
     val testJars = tests.flatMap(_.getLibraryJars.asScala).toSet -- mainJars
     val sourceJars = p.flatMap(_.getLibrarySources.asScala).toSet
     val docJars = p.flatMap(_.getLibraryDocs.asScala).toSet
-    EnsimeModule(
-      name, mainSources, testSources, mainTargets, testTargets, deps.toSet,
-      mainJars, Set.empty, testJars, sourceJars, docJars)
+    new EnsimeModule(
+      name, mainSources.asJava, testSources.asJava, mainTargets.asJava,
+      testTargets.asJava, deps.toSet.asJava, mainJars.asJava, Set.empty.asJava,
+      testJars.asJava, sourceJars.asJava, docJars.asJava)
   }
 
   private lazy val getScalaJars =
