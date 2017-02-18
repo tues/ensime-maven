@@ -413,11 +413,12 @@ class ConfigGenerator(
       }
     }
 
-    val config = EnsimeConfig(project.getBasedir, cacheDir,
-      getScalaJars, getEnsimeServerJars, project.getName,
+    val config = new EnsimeConfig(project.getBasedir, cacheDir,
+      getScalaJars.asJava, getEnsimeServerJars.asJava, project.getName,
       getScalaVersion(),
-      ensimeSuggestedOptions(), modules, getJavaHome(),
-      getEnsimeJavaFlags(), getJavacOptions(project), javaSrc, subProjects)
+      ensimeSuggestedOptions().asJava, modules.asJava, getJavaHome(),
+      getEnsimeJavaFlags().asJava, getJavacOptions(project).asJava,
+      javaSrc.asJava, subProjects.asJava)
     // val emitter = new SExprEmitter(config.as[SExpr])
     // emitter.emit(new FileOutputStream(out).asOutput)
     write(SExpFormatter.toSExp(config).replaceAll("\r\n", "\n") + "\n", out)
