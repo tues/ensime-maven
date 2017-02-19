@@ -41,6 +41,7 @@ import org.eclipse.aether.graph.Dependency
 import org.eclipse.aether.repository.RemoteRepository
 import scala.collection.JavaConverters._
 import org.ensime.maven.plugins.ensime.model._
+import org.ensime.maven.plugins.ensime.formatter._
 import scala.util.Properties.{ versionNumberString => systemScalaVersion }
 
 /**
