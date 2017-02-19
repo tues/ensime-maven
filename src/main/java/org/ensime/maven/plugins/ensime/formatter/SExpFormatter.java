@@ -26,7 +26,7 @@ import org.ensime.maven.plugins.ensime.model.*;
 
 import static java.util.stream.Collectors.*;
 
-public class SExpFormatter {
+final public class SExpFormatter {
 
   // normalise and ensure monkeys go first
   // (bit of a hack to do it here, maybe best when creating)

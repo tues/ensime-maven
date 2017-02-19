@@ -39,7 +39,7 @@ import org.eclipse.aether.RepositorySystem;
  */
 @Mojo(name = "generate", requiresProject = true,
       requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
-public class GenerateMojo extends AbstractMojo {
+final public class GenerateMojo extends AbstractMojo {
 
   public static final String DOT_ENSIME = ".ensime";
 
