@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.function.Function;
 import static java.util.stream.Collectors.toSet;
 
-public class EnsimeModule {
+final public class EnsimeModule {
   private final String name;
   private final Set<File> mainRoots;
   private final Set<File> testRoots;
