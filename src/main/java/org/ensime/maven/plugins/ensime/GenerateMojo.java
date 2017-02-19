@@ -37,60 +37,60 @@ import org.eclipse.aether.RepositorySystem;
  *
  * @author ueshin
  */
-@Mojo(name = "generate", requiresProject = true, requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
+@Mojo(name = "generate", requiresProject = true,
+      requiresDependencyResolution = ResolutionScope.TEST, aggregator = true)
 public class GenerateMojo extends AbstractMojo {
 
-    public static final String DOT_ENSIME = ".ensime";
+  public static final String DOT_ENSIME = ".ensime";
 
-    /**
-     * The project whose project files to create.
-     */
-    @Component
-    protected MavenProject project;
+  /**
+   * The project whose project files to create.
+   */
+  @Component
+  protected MavenProject project;
 
-    @Parameter(defaultValue = "${repositorySystemSession}")
-    private RepositorySystemSession session;
+  @Parameter(defaultValue = "${repositorySystemSession}")
+  private RepositorySystemSession session;
 
-    @Component
-    private RepositorySystem repoSystem;
+  @Component
+  private RepositorySystem repoSystem;
 
-    /**
-     * The formatter preferences
-     */
-    @Parameter(property = "ensime.formatter.preferences", defaultValue = "${basedir}/src/ensime/formatter.properties")
-    protected File formatterPreferences;
+  /**
+   * The formatter preferences
+   */
+  @Parameter(property = "ensime.formatter.preferences",
+              defaultValue = "${basedir}/src/ensime/formatter.properties")
+  protected File formatterPreferences;
 
-    /**
-     * Skip the operation when true.
-     */
-    @Parameter(property = "ensime.skip", defaultValue = "false")
-    protected boolean skip;
+  /**
+   * Skip the operation when true.
+   */
+  @Parameter(property = "ensime.skip", defaultValue = "false")
+  protected boolean skip;
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if(skip) {
-            return;
-        }
-        Properties properties = new Properties();
-        InputStream in = null;
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    if(skip) {
+      return;
+    }
+    Properties properties = new Properties();
+    InputStream in = null;
+    try {
+      in = new FileInputStream(formatterPreferences);
+      properties.load(in);
+    } catch(IOException e) {
+    } finally {
+      if(in != null) {
         try {
-            in = new FileInputStream(formatterPreferences);
-            properties.load(in);
+          in.close();
         }
         catch(IOException e) {
         }
-        finally {
-            if(in != null) {
-                try {
-                    in.close();
-                }
-                catch(IOException e) {
-                }
-            }
-        }
-
-        ConfigGenerator generator = new ConfigGenerator(project,
-            repoSystem, session, properties);
-        generator.generate(new File(project.getBasedir(), DOT_ENSIME));
+      }
     }
+
+    ConfigGenerator generator = new ConfigGenerator(project,
+        repoSystem, session, properties);
+    generator.generate(new File(project.getBasedir(), DOT_ENSIME));
+  }
 }
