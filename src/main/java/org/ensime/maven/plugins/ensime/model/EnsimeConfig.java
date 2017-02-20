@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-public class EnsimeConfig {
+final public class EnsimeConfig {
   private final File root;
   private final File cacheDir;
   private final Set<File> scalaCompilerJars;
@@ -78,5 +78,4 @@ public class EnsimeConfig {
   public List<String> getJavacOptions() { return javacOptions; }
   public Set<File> getJavaSrc() { return javaSrc; }
   public List<EnsimeProject> getProjects() { return projects; }
-
 }
