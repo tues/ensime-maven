@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -215,7 +214,7 @@ final public class EnsimeConfigGenerator {
             })
             .distinct()
             .collect(toSet());
-        }).orElse(Collections.<File>emptySet());
+        }).orElse(new HashSet<>());
     }
   }
 

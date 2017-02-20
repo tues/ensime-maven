@@ -27,7 +27,6 @@ import org.ensime.maven.plugins.ensime.model.EnsimeProjectId;
 import org.ensime.maven.plugins.ensime.model.EnsimeConfig;
 import org.ensime.maven.plugins.ensime.model.EnsimeModule;
 
-import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.partitioningBy;
 import static java.util.stream.Collectors.joining;
