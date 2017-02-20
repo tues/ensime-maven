@@ -16,8 +16,9 @@
 package org.ensime.maven.plugins.ensime.model;
 
 import java.io.File;
+import java.util.StringJoiner;
 
-public class EnsimeProjectId {
+final public class EnsimeProjectId {
   private final String project;
   private final String config;
 
@@ -28,5 +29,14 @@ public class EnsimeProjectId {
 
   public String getProject() { return project; }
   public String getConfig() { return config; }
+
+
+  public String toString() {
+    StringJoiner joiner = new StringJoiner(", ", "EnsimeProjectId(", ")");
+    joiner.add(project);
+    joiner.add(config);
+
+    return joiner.toString();
+  }
 }
 

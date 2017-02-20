@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.List;
 import java.io.File;
 
-public class EnsimeProject {
+final public class EnsimeProject {
   private final EnsimeProjectId id;
   private final List<EnsimeProjectId> dependsOn;
   private final Set<File> sources;
