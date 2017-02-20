@@ -70,16 +70,22 @@ final public class EnsimeConfigGenerator {
   private final Properties properties;
   private final String DEFAULT_SCALA_VERSION = "2.10.6";
 
-  private String systemScalaVersion() {
-    return Optional.ofNullable(System.getProperty("scala.home")).flatMap( scalaHome -> {
-      int cutIndex = scalaHome.lastIndexOf('-');
-      if(cutIndex >= 0) {
-        return Optional.empty();
-      } else {
-        return Optional.ofNullable(scalaHome.substring(cutIndex + 1));
-      }
-    }).orElse(DEFAULT_SCALA_VERSION);
-  }
+  private final static String SCALA_MAVEN_PLUGIN_GROUP_ID = "net.alchim31.maven";
+  private final static String SCALA_MAVEN_PLUGIN_ARTIFACT_ID = "scala-maven-plugin";
+
+  private final static String JAVA_MAVEN_PLUGIN_GROUP_ID = "org.apache.maven.plugins";
+  private final static String JAVA_MAVEN_PLUGIN_ARTIFACT_ID = "maven-compiler-plugin";
+
+  private final static String SCALA_MAVEN_PLUGIN =
+    SCALA_MAVEN_PLUGIN_GROUP_ID + ":" +SCALA_MAVEN_PLUGIN_ARTIFACT_ID;
+
+  private final static String JAVA_MAVEN_PLUGIN =
+    JAVA_MAVEN_PLUGIN_GROUP_ID + ":" + JAVA_MAVEN_PLUGIN_ARTIFACT_ID;
+
+  private final static String ENSIME_SERVER_VERSION = "2.0.0-SNAPSHOT";
+
+
+  private final static String SP = File.separator;
 
   public EnsimeConfigGenerator(final MavenProject project,
     final RepositorySystem repoSystem,
@@ -92,9 +98,6 @@ final public class EnsimeConfigGenerator {
     this.properties = properties;
   }
 
-  private final String SP = File.separator;
-
-
   private List<RemoteRepository> remoteRepositories() {
     List<Repository> repos = project.getRepositories();
     return repoSystem.newResolutionRepositories(session,
@@ -104,20 +107,6 @@ final public class EnsimeConfigGenerator {
           .build()
         ).collect(toList()));
   }
-
-  private final String SCALA_MAVEN_PLUGIN_GROUP_ID = "net.alchim31.maven";
-  private final String SCALA_MAVEN_PLUGIN_ARTIFACT_ID = "scala-maven-plugin";
-
-  private final String JAVA_MAVEN_PLUGIN_GROUP_ID = "org.apache.maven.plugins";
-  private final String JAVA_MAVEN_PLUGIN_ARTIFACT_ID = "maven-compiler-plugin";
-
-  private final String SCALA_MAVEN_PLUGIN =
-    SCALA_MAVEN_PLUGIN_GROUP_ID + ":" +SCALA_MAVEN_PLUGIN_ARTIFACT_ID;
-
-  private final String JAVA_MAVEN_PLUGIN =
-    JAVA_MAVEN_PLUGIN_GROUP_ID + ":" + JAVA_MAVEN_PLUGIN_ARTIFACT_ID;
-
-  private final String ENSIME_SERVER_VERSION = "2.0.0-SNAPSHOT";
 
   private static Optional<String> output(final InputStream inputStream) {
     StringBuilder sb = new StringBuilder();
@@ -219,7 +208,7 @@ final public class EnsimeConfigGenerator {
   }
 
   private Pair<Integer, Integer> partialVersion() {
-    String[] parts = systemScalaVersion().split("\\.");
+    String[] parts = getScalaVersion().split("\\.");
     return new Pair(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
   }
 
@@ -242,7 +231,7 @@ final public class EnsimeConfigGenerator {
       resolveAll(artifact("org.ensime", "server_" + scala,
             ENSIME_SERVER_VERSION));
 
-    return resolve(artifact(org, "scalap", systemScalaVersion())).map ( f -> {
+    return resolve(artifact(org, "scalap", getScalaVersion())).map ( f -> {
       Set<File> artifacts = new HashSet();
       artifacts.addAll(ensimeServerArtifacts);
       artifacts.add(f);
