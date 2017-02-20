@@ -382,7 +382,7 @@ final public class EnsimeConfigGenerator {
       "-Ywarn-numeric-widen",
       "-Xfuture").collect(toList());
     Pair<Integer, Integer> pv = partialVersion();
-    if(pv.equals(new Pair(2, 10))) {
+    if(pv._1 == 2 && pv._2 == 10) {
       flags.add("-Ymacro-no-expand");
     } else if(pv._1 == 2 && pv._2 >= 11) {
       flags.add("-Ywarn-unused-import");
