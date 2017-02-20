@@ -22,9 +22,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import org.ensime.maven.plugins.ensime.model.*;
+import org.ensime.maven.plugins.ensime.model.EnsimeProject;
+import org.ensime.maven.plugins.ensime.model.EnsimeProjectId;
+import org.ensime.maven.plugins.ensime.model.EnsimeConfig;
+import org.ensime.maven.plugins.ensime.model.EnsimeModule;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.joining;
 
 final public class SExpFormatter {
 
