@@ -89,7 +89,7 @@ final public class GenerateMojo extends AbstractMojo {
       }
     }
 
-    ConfigGenerator generator = new ConfigGenerator(project,
+    EnsimeConfigGenerator generator = new EnsimeConfigGenerator(project,
         repoSystem, session, properties);
     generator.generate(new File(project.getBasedir(), DOT_ENSIME));
   }
