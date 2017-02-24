@@ -68,9 +68,10 @@ final public class EnsimeConfigGenerator {
   private final RepositorySystem repoSystem;
   private final RepositorySystemSession session;
   private final Properties properties;
-  private final String DEFAULT_SCALA_VERSION = "2.10.6";
+  private final List<MavenProject> modules;
 
   private final static String SCALA_MAVEN_PLUGIN_GROUP_ID = "net.alchim31.maven";
+  private final static String DEFAULT_SCALA_VERSION = "2.10.6";
   private final static String SCALA_MAVEN_PLUGIN_ARTIFACT_ID = "scala-maven-plugin";
 
   private final static String JAVA_MAVEN_PLUGIN_GROUP_ID = "org.apache.maven.plugins";
@@ -96,6 +97,8 @@ final public class EnsimeConfigGenerator {
     this.repoSystem = repoSystem;
     this.session    = session;
     this.properties = properties;
+    modules = project.getCollectedProjects();
+    modules.add(project);
   }
 
   private List<RemoteRepository> remoteRepositories() {
@@ -481,10 +484,8 @@ final public class EnsimeConfigGenerator {
   }
 
   private List<EnsimeProject> getEnsimeProjects() {
-    List<MavenProject> modules = project.getCollectedProjects();
-    modules.add(project);
 
-    return modules.stream().map ( module -> {
+    return modules.stream().map ( project -> {
       EnsimeProjectId projectId =
         new EnsimeProjectId(project.getArtifactId(),
             Optional.ofNullable(project.getDefaultGoal()).orElse("compile"));
@@ -494,16 +495,13 @@ final public class EnsimeConfigGenerator {
       // This only gets the direct dependencies, and we filter all the
       // dependencies that are not a subproject of this potentially
       // multiproject project
-      List<EnsimeProjectId> depends = dependencyArtifacts.stream()
-        .filter(d ->
-            modules.stream().filter(
-              m -> m.getId().equals(d.getId())).findFirst().isPresent())
+      List<EnsimeProjectId> depends = modules.stream()
         .map(d -> new EnsimeProjectId(d.getArtifactId(), "compile"))
         .collect(toList());
 
       List<String> compileSources = new ArrayList();
-      compileSources.addAll(getSources(module, "main"));
-      compileSources.addAll(getSources(module, "test"));
+      compileSources.addAll(getSources(project, "main"));
+      compileSources.addAll(getSources(project, "test"));
 
       Set<File> compileFiles = compileSources.stream()
         .map(s -> new File(s))
@@ -562,7 +560,7 @@ final public class EnsimeConfigGenerator {
       .collect(toMap(p -> p.getKey(), p -> ensimeProjectsToModule(p.getValue())));
 
     File javaSrcFile = new File(getJavaHome().getAbsolutePath() + SP + "src.zip");
-    Set<File> javaSrc = new HashSet();
+    Set<File> javaSrc = new HashSet<>();
 
     if(javaSrcFile.exists()) javaSrc.add(javaSrcFile);
 
