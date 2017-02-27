@@ -39,26 +39,46 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 @Mojo(name = "scalariformOnly", requiresProject = true)
 final public class ScalariformMojo extends AbstractMojo {
 
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
   private boolean alignParameters;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
+  private boolean alignSingleLineCaseStatements;
+  @Parameter(defaultValue="40")
+  private int alignSingleLineCaseStatements_maxArrowIndent;
+  @Parameter(defaultValue="false")
+  private boolean compactControlReadability;
+  @Parameter(defaultValue="false")
   private boolean compactStringConcatenation;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="true")
   private boolean doubleIndentClassDeclaration;
-  @Parameter(defaultValue = "2")
+  @Parameter(defaultValue="true")
+  private boolean formatXml;
+  @Parameter(defaultValue="false")
+  private boolean indentLocalDefs;
+  @Parameter(defaultValue="true")
+  private boolean indentPackageBlocks;
+  @Parameter(defaultValue="2")
   private int indentSpaces;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
+  private boolean indentWithTabs;
+  @Parameter(defaultValue="false")
+  private boolean multilineScaladocCommentsStartOnFirstLine;
+  @Parameter(defaultValue="false")
   private boolean placeScaladocAsterisksBeneathSecondAsterisk;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
+  private boolean preserveDanglingCloseParenthesis;
+  @Parameter(defaultValue="false")
   private boolean preserveSpaceBeforeArguments;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
   private boolean rewriteArrowSymbols;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
   private boolean spaceBeforeColon;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
   private boolean spaceInsideBrackets;
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue="false")
   private boolean spaceInsideParentheses;
+  @Parameter(defaultValue="true")
+  private boolean spacesWithinPatternBinders;
 
   @Parameter(defaultValue = "${project}", readonly = true)
   private MavenProject mavenProject;
@@ -79,15 +99,35 @@ final public class ScalariformMojo extends AbstractMojo {
       ),
       goal("format"),
       configuration(
-          element(name("alignParameters"), "" + alignParameters),
-          element(name("compactStringConcatenation"), "" + compactStringConcatenation),
-          element(name("doubleIndentClassDeclaration"), "" + doubleIndentClassDeclaration),
-          element(name("indentSpaces"), "" + indentSpaces),
-          element(name("placeScaladocAsterisksBeneathSecondAsterisk"), "" + placeScaladocAsterisksBeneathSecondAsterisk),
-          element(name("preserveSpaceBeforeArguments"), "" + preserveSpaceBeforeArguments),
-          element(name("rewriteArrowSymbols"), "" + rewriteArrowSymbols),
-          element(name("spaceBeforeColon"), "" + spaceBeforeColon),
-          element(name("spaceInsideBrackets"), "" + spaceInsideBrackets)
+        element(name("alignParameters"), "" + alignParameters),
+        element(name("alignSingleLineCaseStatements"),
+          "" + alignSingleLineCaseStatements),
+        element(name("alignSingleLineCaseStatements_maxArrowIndent"),
+          "" + alignSingleLineCaseStatements_maxArrowIndent),
+        element(name("compactControlReadability"),
+          "" + compactControlReadability),
+        element(name("compactStringConcatenation"),
+          "" + compactStringConcatenation),
+        element(name("doubleIndentClassDeclaration"),
+          "" + doubleIndentClassDeclaration),
+        element(name("formatXml"), "" + formatXml),
+        element(name("indentLocalDefs"), "" + indentLocalDefs),
+        element(name("indentPackageBlocks"), "" + indentPackageBlocks),
+        element(name("indentSpaces"), "" + indentSpaces),
+        element(name("indentWithTabs"), "" + indentWithTabs),
+        element(name("multilineScaladocCommentsStartOnFirstLine"),
+          "" + multilineScaladocCommentsStartOnFirstLine),
+        element(name("placeScaladocAsterisksBeneathSecondAsterisk"),
+          "" + placeScaladocAsterisksBeneathSecondAsterisk),
+        element(name("preserveDanglingCloseParenthesis"),
+          "" + preserveDanglingCloseParenthesis),
+        element(name("preserveSpaceBeforeArguments"),
+          "" + preserveSpaceBeforeArguments),
+        element(name("rewriteArrowSymbols"), "" + rewriteArrowSymbols),
+        element(name("spaceBeforeColon"), "" + spaceBeforeColon),
+        element(name("spaceInsideBrackets"), "" + spaceInsideBrackets),
+        element(name("spaceInsideParentheses"), "" + spaceInsideParentheses),
+        element(name("spacesWithinPatternBinders"), "" + spacesWithinPatternBinders)
       ),
       executionEnvironment(
           mavenProject,
