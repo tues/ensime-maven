@@ -49,7 +49,7 @@ final public class GenerateMojo extends AbstractMojo {
   @Component
   protected MavenProject project;
 
-  @Parameter(defaultValue = "${repositorySystemSession}")
+  @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
   private RepositorySystemSession session;
 
   @Component

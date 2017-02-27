@@ -60,10 +60,10 @@ final public class ScalariformMojo extends AbstractMojo {
   @Parameter(defaultValue = "false")
   private boolean spaceInsideParentheses;
 
-  @Component
+  @Parameter(defaultValue = "${project}", readonly = true)
   private MavenProject mavenProject;
 
-  @Component
+  @Parameter(defaultValue = "${session}", readonly = true)
   private MavenSession mavenSession;
 
   @Component
