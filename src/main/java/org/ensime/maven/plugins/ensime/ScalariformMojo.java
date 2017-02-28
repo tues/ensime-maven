@@ -36,7 +36,7 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
 
-@Mojo(name = "scalariformOnly", requiresProject = true)
+@Mojo(name = "scalariform", requiresProject = true)
 final public class ScalariformMojo extends AbstractMojo {
 
   @Parameter(defaultValue="false")
