@@ -97,8 +97,10 @@ final public class EnsimeConfigGenerator {
     this.repoSystem = repoSystem;
     this.session    = session;
     this.properties = properties;
-    modules = project.getCollectedProjects();
-    modules.add(project);
+    List<MavenProject> temp = project.getCollectedProjects();
+    temp.add(project);
+    modules = temp.stream().
+      filter(p -> !p.getPackaging().equals("pom")).collect(toList());
   }
 
   private List<RemoteRepository> remoteRepositories() {
@@ -192,22 +194,25 @@ final public class EnsimeConfigGenerator {
     DependencyRequest dependencyRequest = new DependencyRequest();
     dependencyRequest.setCollectRequest(collectRequest);
 
+    Set<File> dependencies;
     try {
-      return repoSystem.resolveDependencies(session, dependencyRequest)
+      dependencies = repoSystem.resolveDependencies(session, dependencyRequest)
         .getArtifactResults().stream()
         .map(a -> a.getArtifact().getFile())
         .collect(toSet());
     } catch (DependencyResolutionException drex) {
-        return Optional.ofNullable(drex.getResult()).map(r -> {
+        dependencies = Optional.ofNullable(drex.getResult()).map(r -> {
           return r.getArtifactResults().stream()
             .flatMap(a -> {
               return Optional.ofNullable(a.getArtifact()).map(f -> f.getFile())
                 .map(Stream::of).orElseGet(Stream::empty);
             })
-            .distinct()
             .collect(toSet());
         }).orElse(new HashSet<>());
     }
+
+    return dependencies.stream()
+      .filter(f -> !f.getName().endsWith(".pom")).collect(toSet());
   }
 
   private Pair<Integer, Integer> partialVersion() {
@@ -496,6 +501,9 @@ final public class EnsimeConfigGenerator {
       // dependencies that are not a subproject of this potentially
       // multiproject project
       List<EnsimeProjectId> depends = modules.stream()
+        // .filter(d ->
+        //     modules.stream().filter(
+        //       m -> m.getId().equals(d.getId())).findFirst().isPresent())
         .map(d -> new EnsimeProjectId(d.getArtifactId(), "compile"))
         .collect(toList());
 
