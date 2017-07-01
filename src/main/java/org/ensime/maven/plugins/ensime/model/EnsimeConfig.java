@@ -25,6 +25,7 @@ final public class EnsimeConfig {
   private final File cacheDir;
   private final Set<File> scalaCompilerJars;
   private final Set<File> ensimeServerJars;
+  private final String ensimeServerVersion;
   private final String name;
   private final String scalaVersion;
   private final List<String> scalacOptions; // 1.0
@@ -39,6 +40,7 @@ final public class EnsimeConfig {
     final File cacheDir,
     final Set<File> scalaCompilerJars,
     final Set<File> ensimeServerJars,
+    final String ensimeServerVersion,
     final String name,
     final String scalaVersion,
     final List<String> scalacOptions,
@@ -49,19 +51,20 @@ final public class EnsimeConfig {
     final Set<File> javaSrc,
     final List<EnsimeProject> projects) {
 
-    this.root              = root;
-    this.cacheDir          = cacheDir;
-    this.scalaCompilerJars = scalaCompilerJars;
-    this.ensimeServerJars  = ensimeServerJars;
-    this.name              = name;
-    this.scalaVersion      = scalaVersion;
-    this.scalacOptions     = scalacOptions;
-    this.modules           = modules;
-    this.javaHome          = javaHome;
-    this.javaFlags         = javaFlags;
-    this.javacOptions      = javacOptions;
-    this.javaSrc           = javaSrc;
-    this.projects          = projects;
+    this.root                = root;
+    this.cacheDir            = cacheDir;
+    this.scalaCompilerJars   = scalaCompilerJars;
+    this.ensimeServerJars    = ensimeServerJars;
+    this.ensimeServerVersion = ensimeServerVersion;
+    this.name                = name;
+    this.scalaVersion        = scalaVersion;
+    this.scalacOptions       = scalacOptions;
+    this.modules             = modules;
+    this.javaHome            = javaHome;
+    this.javaFlags           = javaFlags;
+    this.javacOptions        = javacOptions;
+    this.javaSrc             = javaSrc;
+    this.projects            = projects;
   }
 
 
@@ -69,6 +72,7 @@ final public class EnsimeConfig {
   public File getCacheDir() { return cacheDir; }
   public Set<File> getScalaCompilerJars() { return scalaCompilerJars; }
   public Set<File> getEnsimeServerJars() { return ensimeServerJars; }
+  public String getEnsimeServerVersion() { return ensimeServerVersion; }
   public String getName() { return name; }
   public String getScalaVersion() { return scalaVersion; }
   public List<String> getScalacOptions() { return scalacOptions; }

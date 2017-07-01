@@ -119,7 +119,9 @@ final public class SExpFormatter {
     builder.append("\n");
     builder.append(":ensime-server-jars");
     builder.append(fsToSExp(c.getEnsimeServerJars()));
-    builder.append("\n");
+    builder.append("\n:ensime-server-version \"");
+    builder.append(c.getEnsimeServerVersion());
+    builder.append("\"\n");
     builder.append(":name \"");
     builder.append(c.getName());
     builder.append("\"");

@@ -573,7 +573,7 @@ final public class EnsimeConfigGenerator {
     if(javaSrcFile.exists()) javaSrc.add(javaSrcFile);
 
     EnsimeConfig config = new EnsimeConfig(project.getBasedir(), cacheDir,
-      getScalaJars(), getEnsimeServerJars(), project.getName(),
+      getScalaJars(), getEnsimeServerJars(), ENSIME_SERVER_VERSION, project.getName(),
       getScalaVersion(),
       ensimeSuggestedOptions(), modules, getJavaHome(),
       getEnsimeJavaFlags(), getJavacOptions(project),
