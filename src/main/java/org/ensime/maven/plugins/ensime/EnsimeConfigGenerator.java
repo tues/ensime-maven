@@ -497,14 +497,13 @@ final public class EnsimeConfigGenerator {
 
       Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
 
-      // This only gets the direct dependencies, and we filter all the
-      // dependencies that are not a subproject of this potentially
-      // multiproject project
-      List<EnsimeProjectId> depends = modules.stream()
-        // .filter(d ->
-        //     modules.stream().filter(
-        //       m -> m.getId().equals(d.getId())).findFirst().isPresent())
-        .map(d -> new EnsimeProjectId(d.getArtifactId(), "compile"))
+      // Get project dependencies (maven subprojects) of this maven project --
+      // don't include this project as a dependency of itself
+      List<MavenProject> collectedProjects = project.getCollectedProjects();
+      List<EnsimeProjectId> depends = collectedProjects.stream()
+        .filter(p -> !p.getPackaging().equals("pom"))
+        .filter(p -> !p.getArtifactId().equals(project.getArtifactId()))
+        .map(p -> new EnsimeProjectId(p.getArtifactId(), "compile"))
         .collect(toList());
 
       List<String> compileSources = new ArrayList();
