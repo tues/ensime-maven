@@ -83,7 +83,7 @@ final public class EnsimeConfigGenerator {
   private final static String JAVA_MAVEN_PLUGIN =
     JAVA_MAVEN_PLUGIN_GROUP_ID + ":" + JAVA_MAVEN_PLUGIN_ARTIFACT_ID;
 
-  private final static String ENSIME_SERVER_VERSION = "2.0.0-SNAPSHOT";
+  private final String ENSIME_SERVER_VERSION;
 
 
   private final static String SP = File.separator;
@@ -91,12 +91,15 @@ final public class EnsimeConfigGenerator {
   public EnsimeConfigGenerator(final MavenProject project,
     final RepositorySystem repoSystem,
     final RepositorySystemSession session,
-    final Properties properties) {
+    final Properties properties,
+    final String ensimeServerVersion) {
 
     this.project    = project;
     this.repoSystem = repoSystem;
     this.session    = session;
     this.properties = properties;
+    this.ENSIME_SERVER_VERSION = ensimeServerVersion;
+
     List<MavenProject> temp = project.getCollectedProjects();
     temp.add(project);
     modules = temp.stream().

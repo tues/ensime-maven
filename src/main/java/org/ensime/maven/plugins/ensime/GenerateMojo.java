@@ -68,6 +68,14 @@ final public class GenerateMojo extends AbstractMojo {
   @Parameter(property = "ensime.skip", defaultValue = "false")
   protected boolean skip;
 
+  /**
+   * ENSIME server
+   */
+  @Parameter(property = "ensime.server.version",
+              defaultValue = "2.0.0-M4")
+  protected String ensimeServerVersion;
+
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if(skip) {
@@ -90,7 +98,7 @@ final public class GenerateMojo extends AbstractMojo {
     }
 
     EnsimeConfigGenerator generator = new EnsimeConfigGenerator(project,
-        repoSystem, session, properties);
+        repoSystem, session, properties, ensimeServerVersion);
     generator.generate(new File(project.getBasedir(), DOT_ENSIME));
   }
 }
