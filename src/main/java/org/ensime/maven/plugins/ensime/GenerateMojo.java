@@ -75,6 +75,15 @@ final public class GenerateMojo extends AbstractMojo {
               defaultValue = "2.0.0-M4")
   protected String ensimeServerVersion;
 
+  /**
+   * Ensime Scala version
+   *
+   * If set (e.g. with -Densime.scala.version), the plugin will use this value
+   * instead of trying to dynamically determine project scala version.
+   */
+  @Parameter(property = "ensime.scala.version")
+  protected String ensimeScalaVersion;
+
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -98,7 +107,8 @@ final public class GenerateMojo extends AbstractMojo {
     }
 
     EnsimeConfigGenerator generator = new EnsimeConfigGenerator(project,
-        repoSystem, session, properties, ensimeServerVersion);
+        repoSystem, session, properties, ensimeServerVersion, ensimeScalaVersion,
+        getLog());
     generator.generate(new File(project.getBasedir(), DOT_ENSIME));
   }
 }
