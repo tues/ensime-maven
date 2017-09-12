@@ -15,6 +15,12 @@
  */
 package org.ensime.maven.plugins.ensime;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.plugin.logging.Log;
 import org.ensime.maven.plugins.ensime.model.EnsimeProject;
 import org.ensime.maven.plugins.ensime.model.EnsimeProjectId;
 import org.ensime.maven.plugins.ensime.model.EnsimeConfig;
@@ -62,6 +68,7 @@ import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.groupingBy;
 
 final public class EnsimeConfigGenerator {
   private final MavenProject project;
@@ -69,6 +76,7 @@ final public class EnsimeConfigGenerator {
   private final RepositorySystemSession session;
   private final Properties properties;
   private final List<MavenProject> modules;
+  private final Log log;
 
   private final static String SCALA_MAVEN_PLUGIN_GROUP_ID = "net.alchim31.maven";
   private final static String DEFAULT_SCALA_VERSION = "2.10.6";
@@ -85,20 +93,29 @@ final public class EnsimeConfigGenerator {
 
   private final String ENSIME_SERVER_VERSION;
 
+  // Note: This is normally null, and scala version will be dynamically determined
+  // from the project dependencies.  If set (with -Densime.scala.version), will
+  // override the scala version.
+  private final String ENSIME_SCALA_VERSION;
 
   private final static String SP = File.separator;
+
 
   public EnsimeConfigGenerator(final MavenProject project,
     final RepositorySystem repoSystem,
     final RepositorySystemSession session,
     final Properties properties,
-    final String ensimeServerVersion) {
+    final String ensimeServerVersion,
+    final String ensimeScalaVersion,
+    final Log log) {
 
     this.project    = project;
     this.repoSystem = repoSystem;
     this.session    = session;
     this.properties = properties;
     this.ENSIME_SERVER_VERSION = ensimeServerVersion;
+    this.ENSIME_SCALA_VERSION = ensimeScalaVersion;
+    this.log = log;
 
     List<MavenProject> temp = project.getCollectedProjects();
     temp.add(project);
@@ -295,20 +312,132 @@ final public class EnsimeConfigGenerator {
   }
 
   /**
-   * Get the scala-version for this project. Uses scala.version as the key.
+   * Get the scala version for this project.
    *
-   * If you want a blue shed, get out a can of paint :)
    * @return String containing the scala version
    */
   private String getScalaVersion() {
-    Stream<org.apache.maven.model.Dependency> deps =
-      project.getDependencies().stream();
 
-    return deps.filter(d -> d.getGroupId().equals("org.scala-lang") &&
-                d.getArtifactId().equals("scala-library"))
-            .findFirst()
-            .map(d -> d.getVersion())
-            .orElse(DEFAULT_SCALA_VERSION); // So arbitrary.
+      List<org.apache.maven.model.Dependency> directDependencies = 
+          project.getDependencies();
+
+      List<org.apache.maven.model.Dependency> depMgmtDependencies = 
+          Optional.<DependencyManagement>ofNullable(
+              project.getModel().getDependencyManagement())
+          .map(depMgmt -> depMgmt.getDependencies())
+          .orElse(new ArrayList<>());
+
+      Set<Artifact> allDependencies = project.getArtifacts();
+
+      Pair<String, Optional<String>> result = getScalaVersion(directDependencies,
+          depMgmtDependencies, allDependencies, ENSIME_SCALA_VERSION, DEFAULT_SCALA_VERSION);
+
+      result._2.ifPresent(logMessage -> log.warn(logMessage));
+
+      return result._1;
+  }
+
+
+  /**
+   * Contains the pure functional logic for determining scala version.
+   *
+   * @return a pair with the first element being the determined
+   *         Scala version, and the second element being an optional
+   *         log message.
+   */
+  public static Pair<String, Optional<String>> getScalaVersion(
+      List<org.apache.maven.model.Dependency> directDependencies,
+      List<org.apache.maven.model.Dependency> depMgmtDependencies,
+      Set<Artifact> allDependencies, String ensimeScalaVersion,
+      String defaultScalaVersion) {
+
+      final String scalaLibraryGroupId = "org.scala-lang";
+      final String scalaLibraryArtifactId = "scala-library";
+
+      // Determine scala version, via a number of different methods:
+
+      // If -Densime.scala.version is set, use that
+      if (ensimeScalaVersion != null && !ensimeScalaVersion.trim().equals(""))
+          return new Pair<String, Optional<String>>(ensimeScalaVersion, Optional.empty());
+
+      // Look for a scala library dependency in <dependencies>
+      Optional<String> directVersion = directDependencies.stream()
+          .filter(d ->
+              d.getGroupId().equals(scalaLibraryGroupId) &&
+              d.getArtifactId().equals(scalaLibraryArtifactId))
+          .findFirst()
+          .map(d -> d.getVersion());
+      if (directVersion.isPresent())
+          return new Pair<String, Optional<String>>(directVersion.get(), Optional.empty());
+
+      // Look in <dependencyManagement>
+      Optional<String> depMgmtVersion = depMgmtDependencies.stream()
+          .filter(d ->
+              d.getGroupId().equals(scalaLibraryGroupId) &&
+              d.getArtifactId().equals(scalaLibraryArtifactId))
+          .findFirst()
+          .map(d -> d.getVersion());
+      if (depMgmtVersion.isPresent())
+          return new Pair<String, Optional<String>>(depMgmtVersion.get(), Optional.empty());
+
+      // Look at all dependencies, including transitive dependencies
+      String[] allVersions = allDependencies.stream()
+          .filter(d ->
+              d.getGroupId().equals(scalaLibraryGroupId) &&
+              d.getArtifactId().equals(scalaLibraryArtifactId))
+          .map(d -> d.getVersion())
+          .collect(toSet())
+          .toArray(new String[0]);
+      // If there is only one distinct version, return that
+      if (allVersions.length == 1)
+          return new Pair<String, Optional<String>>(allVersions[0], Optional.empty());
+      // Group by major version
+      Pattern p = Pattern.compile("^((\\d+)\\.(\\d+))\\.(\\d+)$");
+      Map<String, List<String>> depsByMajorVersion = Arrays.stream(allVersions)
+          .collect(groupingBy(v -> {
+              Matcher m = p.matcher(v);
+              if (m.find()) return m.group(1);
+              else return "other";
+          }));
+      // If we have a single major version, use the highest minor version, and
+      // log a warning
+      if (allVersions.length > 1 && depsByMajorVersion.keySet().size() == 1) {
+          Arrays.sort(allVersions, Comparator.comparing((String v) -> {
+              Matcher m = p.matcher(v);
+              if (m.find()) return Integer.parseInt(m.group(4));
+              else return Integer.MIN_VALUE;
+          }).reversed());
+          String logMessage = "Multiple scala versions detected, using " + allVersions[0] +
+              ".  Use -Densime.scala.version to override.";
+          return new Pair<String, Optional<String>>(allVersions[0], Optional.of(logMessage));
+      }
+      // If we have multiple major versions, use the lowest major version and
+      // highest minor version, and log a warning
+      if (allVersions.length > 1 && depsByMajorVersion.keySet().size() > 1) {
+          Arrays.sort(allVersions,
+              Comparator.comparing((String v) -> {
+                  Matcher m = p.matcher(v);
+                  if (m.find()) return Integer.parseInt(m.group(2));
+                  else return Integer.MAX_VALUE;
+              })
+              .thenComparing(Comparator.comparing((String v) -> {
+                  Matcher m = p.matcher(v);
+                  if (m.find()) return Integer.parseInt(m.group(3));
+                  else return Integer.MAX_VALUE;
+              }))
+              .thenComparing(Comparator.comparing((String v) -> {
+                  Matcher m = p.matcher(v);
+                  if (m.find()) return Integer.parseInt(m.group(4));
+                  else return Integer.MIN_VALUE;
+              }).reversed())
+          );
+          String logMessage = "Multiple scala versions detected, using " + allVersions[0] +
+              ".  Use -Densime.scala.version to override.";
+          return new Pair<String, Optional<String>>(allVersions[0], Optional.of(logMessage));
+      }
+
+      // If all else fails, use the default version
+      return new Pair<String, Optional<String>>(defaultScalaVersion, Optional.empty());
   }
 
 
@@ -585,7 +714,7 @@ final public class EnsimeConfigGenerator {
   }
 
 
-  private static class Pair<F, S> {
+  public static class Pair<F, S> {
     public final F _1;
     public final S _2;
 
