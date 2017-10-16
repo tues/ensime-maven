@@ -17,6 +17,7 @@ package org.ensime.maven.plugins.ensime;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.maven.model.DependencyManagement;
@@ -653,20 +654,23 @@ final public class EnsimeConfigGenerator {
       List<String> scalacOptions = getScalacOptions(project);
       List<String> javacOptions = getJavacOptions(project);
 
+      // Several of our file-sets hard-code the extension as "jar". Ensure this is true.
+      Predicate<File> isJar = f -> f.getName().endsWith(".jar");
+
       Set<File> libraryJars = dependencyArtifacts.stream().flatMap ( art ->
         resolveAll(new DefaultArtifact(art.getGroupId(),
           art.getArtifactId(), "jar", art.getVersion())).stream()
-      ).collect(toSet());
+      ).filter(isJar).collect(toSet());
 
       Set<File> librarySources = dependencyArtifacts.stream().flatMap ( art ->
         resolveAll(new DefaultArtifact(art.getGroupId(),
           art.getArtifactId(), "sources", "jar", art.getVersion())).stream()
-      ).collect(toSet());
+      ).filter(isJar).collect(toSet());
 
       Set<File> libraryDocs = dependencyArtifacts.stream().flatMap ( art ->
         resolveAll(new DefaultArtifact(art.getGroupId(),
           art.getArtifactId(), "javadoc", "jar", art.getVersion())).stream()
-      ).collect(toSet());
+      ).filter(isJar).collect(toSet());
 
       return new EnsimeProject(projectId, depends, compileFiles,
         targets, scalacOptions, javacOptions,
