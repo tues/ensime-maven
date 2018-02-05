@@ -78,7 +78,7 @@ final public class SExpFormatter {
     else {
       return ss.stream()
         .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-        .map(s -> toSExp(s)).collect(joining(" ", "(", ")"));
+        .map(s -> toSExp(s)).collect(joining("\n", "(\n", "\n )"));
     }
   }
 
@@ -88,7 +88,7 @@ final public class SExpFormatter {
     else {
       return ss.stream()
         .sorted((p1, p2) -> p1.getId().toString().compareTo(p2.getId().toString()))
-        .map(s -> toSExp(s)).collect(joining(" ", "(", ")"));
+        .map(s -> toSExp(s)).collect(joining("\n", "(\n", "\n )"));
     }
   }
 
@@ -111,47 +111,49 @@ final public class SExpFormatter {
     builder.append("(:root-dir ");
     builder.append(toSExp(c.getRoot()));
     builder.append("\n");
-    builder.append(":cache-dir ");
+    builder.append(" :cache-dir ");
     builder.append(toSExp(c.getCacheDir()));
     builder.append("\n");
-    builder.append(":scala-compiler-jars ");
+    builder.append(" :scala-compiler-jars ");
     builder.append(fsToSExp(c.getScalaCompilerJars()));
     builder.append("\n");
-    builder.append(":ensime-server-jars");
+    builder.append(" :ensime-server-jars");
     builder.append(fsToSExp(c.getEnsimeServerJars()));
-    builder.append("\n:ensime-server-version \"");
+    builder.append("\n");
+    builder.append(" :ensime-server-version \"");
     builder.append(c.getEnsimeServerVersion());
     builder.append("\"\n");
-    builder.append(":name \"");
+    builder.append(" :name \"");
     builder.append(c.getName());
     builder.append("\"");
     builder.append("\n");
-    builder.append(":java-home ");
+    builder.append(" :java-home ");
     builder.append(toSExp(c.getJavaHome()));
     builder.append("\n");
-    builder.append(":java-flags ");
+    builder.append(" :java-flags ");
     builder.append(ssToSExp(c.getJavaFlags()));
     builder.append("\n");
-    builder.append(":java-sources ");
+    builder.append(" :java-sources ");
     builder.append(fsToSExp(c.getJavaSrc()));
     builder.append("\n");
-    builder.append(":java-compiler-args ");
+    builder.append(" :java-compiler-args ");
     builder.append(ssToSExp(c.getJavacOptions()));
     builder.append("\n");
-    builder.append(":reference-source-roots ");
+    builder.append(" :reference-source-roots ");
     builder.append(fsToSExp(c.getJavaSrc()));
     builder.append("\n");
-    builder.append(":scala-version ");
+    builder.append(" :scala-version ");
     builder.append(toSExp(c.getScalaVersion()));
     builder.append("\n");
-    builder.append(":compiler-args ");
+    builder.append(" :compiler-args ");
     builder.append(ssToSExp(c.getScalacOptions()));
     builder.append("\n");
-    builder.append(":subprojects ");
+    builder.append(" :subprojects ");
     builder.append(msToSExp(c.getModules().values()));
     builder.append("\n");
-    builder.append(":projects ");
+    builder.append(" :projects ");
     builder.append(psToSExp(c.getProjects()));
+    builder.append("\n");
     builder.append(")");
 
     return builder.toString();
@@ -164,36 +166,37 @@ final public class SExpFormatter {
     roots.addAll(m.getTestRoots());
     StringBuilder builder = new StringBuilder();
 
-    builder.append("(:name ");
+    builder.append("   (:name ");
     builder.append(toSExp(m.getName()));
     builder.append("\n");
-    builder.append(":source-roots ");
+    builder.append("    :source-roots ");
     builder.append(fsToSExp(roots));
     builder.append("\n");
-    builder.append(":targets ");
+    builder.append("    :targets ");
     builder.append(fsToSExp(m.getTargets()));
     builder.append("\n");
-    builder.append(":test-targets ");
+    builder.append("    :test-targets ");
     builder.append(fsToSExp(m.getTestTargets()));
     builder.append("\n");
-    builder.append(":depends-on-modules ");
+    builder.append("    :depends-on-modules ");
     builder.append(ssToSExp(m.getDependsOnNames().stream().sorted().collect(toList())));
     builder.append("\n");
-    builder.append(":compile-deps ");
+    builder.append("    :compile-deps ");
     builder.append(fsToSExp(m.getCompileJars()));
     builder.append("\n");
-    builder.append(":runtime-deps ");
+    builder.append("    :runtime-deps ");
     builder.append(fsToSExp(m.getRuntimeJars()));
     builder.append("\n");
-    builder.append(":test-deps ");
+    builder.append("    :test-deps ");
     builder.append(fsToSExp(m.getTestJars()));
     builder.append("\n");
-    builder.append(":doc-jars ");
+    builder.append("    :doc-jars ");
     builder.append(fsToSExp(m.getDocJars()));
     builder.append("\n");
-    builder.append(":reference-source-roots ");
+    builder.append("    :reference-source-roots ");
     builder.append(fsToSExp(m.getSourceJars()));
-    builder.append(")");
+    builder.append("\n");
+    builder.append("   )");
 
     return builder.toString();
   }
@@ -201,33 +204,34 @@ final public class SExpFormatter {
   private static String toSExp(final EnsimeProject p) {
     StringBuilder builder = new StringBuilder();
 
-    builder.append("(:id ");
+    builder.append("   (:id ");
     builder.append(toSExp(p.getId()));
     builder.append("\n");
-    builder.append(":depends ");
+    builder.append("    :depends ");
     builder.append(idsToSExp(p.getDependsOn()));
     builder.append("\n");
-    builder.append(":sources ");
+    builder.append("    :sources ");
     builder.append(fsToSExp(p.getSources()));
     builder.append("\n");
-    builder.append(":targets ");
+    builder.append("    :targets ");
     builder.append(fsToSExp(p.getTargets()));
     builder.append("\n");
-    builder.append(":scalac-options ");
+    builder.append("    :scalac-options ");
     builder.append(ssToSExp(p.getScalacOptions()));
     builder.append("\n");
-    builder.append(":javac-options ");
+    builder.append("    :javac-options ");
     builder.append(ssToSExp(p.getJavacOptions()));
     builder.append("\n");
-    builder.append(":library-jars ");
+    builder.append("    :library-jars ");
     builder.append(fsToSExp(p.getLibraryJars()));
     builder.append("\n");
-    builder.append(":library-sources ");
+    builder.append("    :library-sources ");
     builder.append(fsToSExp(p.getLibrarySources()));
     builder.append("\n");
-    builder.append(":library-docs ");
+    builder.append("    :library-docs ");
     builder.append(fsToSExp(p.getLibraryDocs()));
-    builder.append(")");
+    builder.append("\n");
+    builder.append("   )");
 
     return builder.toString();
   }
