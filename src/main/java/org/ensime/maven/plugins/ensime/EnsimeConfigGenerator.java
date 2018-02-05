@@ -41,13 +41,18 @@ import java.util.Properties;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.artifact.Artifact;
@@ -238,7 +243,7 @@ final public class EnsimeConfigGenerator {
 
   private Pair<Integer, Integer> partialVersion() {
     String[] parts = getScalaVersion().split("\\.");
-    return new Pair(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+    return Pair.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
   }
 
 
@@ -254,7 +259,7 @@ final public class EnsimeConfigGenerator {
 
   private Set<File> resolveEnsimeJars(final String org, final String ensime) {
     Pair<Integer, Integer> scalaVersion = partialVersion();
-    String scala = scalaVersion._1 + "." + scalaVersion._2;
+    String scala = scalaVersion.getLeft() + "." + scalaVersion.getRight();
 
     Set<File> ensimeServerArtifacts =
       resolveAll(artifact("org.ensime", "server_" + scala,
@@ -333,9 +338,9 @@ final public class EnsimeConfigGenerator {
       Pair<String, Optional<String>> result = getScalaVersion(directDependencies,
           depMgmtDependencies, allDependencies, ENSIME_SCALA_VERSION, DEFAULT_SCALA_VERSION);
 
-      result._2.ifPresent(logMessage -> log.warn(logMessage));
+      result.getRight().ifPresent(logMessage -> log.warn(logMessage));
 
-      return result._1;
+      return result.getLeft();
   }
 
 
@@ -359,7 +364,7 @@ final public class EnsimeConfigGenerator {
 
       // If -Densime.scala.version is set, use that
       if (ensimeScalaVersion != null && !ensimeScalaVersion.trim().equals(""))
-          return new Pair<String, Optional<String>>(ensimeScalaVersion, Optional.empty());
+          return Pair.of(ensimeScalaVersion, Optional.empty());
 
       // Look for a scala library dependency in <dependencies>
       Optional<String> directVersion = directDependencies.stream()
@@ -369,7 +374,7 @@ final public class EnsimeConfigGenerator {
           .findFirst()
           .map(d -> d.getVersion());
       if (directVersion.isPresent())
-          return new Pair<String, Optional<String>>(directVersion.get(), Optional.empty());
+          return Pair.of(directVersion.get(), Optional.empty());
 
       // Look in <dependencyManagement>
       Optional<String> depMgmtVersion = depMgmtDependencies.stream()
@@ -379,7 +384,7 @@ final public class EnsimeConfigGenerator {
           .findFirst()
           .map(d -> d.getVersion());
       if (depMgmtVersion.isPresent())
-          return new Pair<String, Optional<String>>(depMgmtVersion.get(), Optional.empty());
+          return Pair.of(depMgmtVersion.get(), Optional.empty());
 
       // Look at all dependencies, including transitive dependencies
       String[] allVersions = allDependencies.stream()
@@ -391,7 +396,7 @@ final public class EnsimeConfigGenerator {
           .toArray(new String[0]);
       // If there is only one distinct version, return that
       if (allVersions.length == 1)
-          return new Pair<String, Optional<String>>(allVersions[0], Optional.empty());
+          return Pair.of(allVersions[0], Optional.empty());
       // Group by major version
       Pattern p = Pattern.compile("^((\\d+)\\.(\\d+))\\.(\\d+)$");
       Map<String, List<String>> depsByMajorVersion = Arrays.stream(allVersions)
@@ -410,7 +415,7 @@ final public class EnsimeConfigGenerator {
           }).reversed());
           String logMessage = "Multiple scala versions detected, using " + allVersions[0] +
               ".  Use -Densime.scala.version to override.";
-          return new Pair<String, Optional<String>>(allVersions[0], Optional.of(logMessage));
+          return Pair.of(allVersions[0], Optional.of(logMessage));
       }
       // If we have multiple major versions, use the lowest major version and
       // highest minor version, and log a warning
@@ -434,11 +439,11 @@ final public class EnsimeConfigGenerator {
           );
           String logMessage = "Multiple scala versions detected, using " + allVersions[0] +
               ".  Use -Densime.scala.version to override.";
-          return new Pair<String, Optional<String>>(allVersions[0], Optional.of(logMessage));
+          return Pair.of(allVersions[0], Optional.of(logMessage));
       }
 
       // If all else fails, use the default version
-      return new Pair<String, Optional<String>>(defaultScalaVersion, Optional.empty());
+      return Pair.of(defaultScalaVersion, Optional.empty());
   }
 
 
@@ -511,9 +516,9 @@ final public class EnsimeConfigGenerator {
       "-Ywarn-numeric-widen",
       "-Xfuture").collect(toList());
     Pair<Integer, Integer> pv = partialVersion();
-    if(pv._1 == 2 && pv._2 == 10) {
+    if(pv.getLeft() == 2 && pv.getRight() == 10) {
       flags.add("-Ymacro-no-expand");
-    } else if(pv._1 == 2 && pv._2 >= 11) {
+    } else if(pv.getLeft() == 2 && pv.getRight() >= 11) {
       flags.add("-Ywarn-unused-import");
       flags.add("-Ymacro-expand:discard");
     }
@@ -621,61 +626,90 @@ final public class EnsimeConfigGenerator {
     return sources;
   }
 
+  private final static Map<String, String> dependencyTypeToScope;
+  static {
+    dependencyTypeToScope = new HashMap();
+    dependencyTypeToScope.put("jar", "compile");
+    dependencyTypeToScope.put("test-jar", "test");
+  }
+
+  private final static Map<String, String> goalToTarget;
+  static {
+    goalToTarget = new HashMap();
+    goalToTarget.put("compile", "main");
+    goalToTarget.put("test", "test");
+  }
+
+  private final static Map<String, Function<Build, String>> goalToTargetDirectory;
+  static {
+    goalToTargetDirectory = new HashMap();
+    goalToTargetDirectory.put("compile", build -> build.getOutputDirectory());
+    goalToTargetDirectory.put("test",    build -> build.getTestOutputDirectory());
+  }
+
   private List<EnsimeProject> getEnsimeProjects() {
+    Set<Pair<String, String>> internalArtifacts = modules.stream()
+      .map(p -> Pair.of(p.getGroupId(), p.getArtifactId()))
+      .collect(toSet());
 
-    return modules.stream().map ( project -> {
-      EnsimeProjectId projectId =
-        new EnsimeProjectId(project.getArtifactId(),
-            Optional.ofNullable(project.getDefaultGoal()).orElse("compile"));
+    internalArtifacts.stream().forEach(a -> System.err.println("A " + a));
 
-      Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
+    return modules.stream().flatMap(project -> {
+      return goalToTarget.keySet().stream().map(goal -> {
+        String target = goalToTarget.get(goal);
 
-      // Get project dependencies (maven subprojects) of this maven project --
-      // don't include this project as a dependency of itself
-      List<MavenProject> collectedProjects = project.getCollectedProjects();
-      List<EnsimeProjectId> depends = collectedProjects.stream()
-        .filter(p -> !p.getPackaging().equals("pom"))
-        .filter(p -> !p.getArtifactId().equals(project.getArtifactId()))
-        .map(p -> new EnsimeProjectId(p.getArtifactId(), "compile"))
-        .collect(toList());
+        EnsimeProjectId projectId = new EnsimeProjectId(project.getArtifactId(), goal);
 
-      List<String> compileSources = new ArrayList();
-      compileSources.addAll(getSources(project, "main"));
-      compileSources.addAll(getSources(project, "test"));
+        Set<Artifact> dependencyArtifacts = project.getDependencyArtifacts();
 
-      Set<File> compileFiles = compileSources.stream()
-        .map(s -> new File(s))
-        .filter(f -> f.exists())
-        .collect(toSet());
+        Stream<org.apache.maven.model.Dependency> allDependencies = project.getDependencies().stream();
+        List<EnsimeProjectId> depends = allDependencies
+          .filter(d -> goal.equals(d.getScope()))
+          .filter(d -> internalArtifacts.contains(Pair.of(d.getGroupId(), d.getArtifactId())))
+          .map(d -> new EnsimeProjectId(d.getArtifactId(), dependencyTypeToScope.get(d.getType())))
+          .collect(toList());
 
-      Set<File> targets = Stream.of(
-          new File(project.getBuild().getOutputDirectory())).collect(toSet());
+        if (goal.equals("test")) {
+          depends.add(0, new EnsimeProjectId(project.getArtifactId(), "compile"));
+        }
 
-      List<String> scalacOptions = getScalacOptions(project);
-      List<String> javacOptions = getJavacOptions(project);
+        List<String> compileSources = new ArrayList();
+        compileSources.addAll(getSources(project, target));
 
-      // Several of our file-sets hard-code the extension as "jar". Ensure this is true.
-      Predicate<File> isJar = f -> f.getName().endsWith(".jar");
+        Set<File> compileFiles = compileSources.stream()
+          .map(s -> new File(s))
+          .filter(f -> f.exists())
+          .collect(toSet());
 
-      Set<File> libraryJars = dependencyArtifacts.stream().flatMap ( art ->
-        resolveAll(new DefaultArtifact(art.getGroupId(),
-          art.getArtifactId(), "jar", art.getVersion())).stream()
-      ).filter(isJar).collect(toSet());
+        Set<File> targets = Stream.of(new File(goalToTargetDirectory.get(goal).apply(project.getBuild())))
+          .collect(toSet());
 
-      Set<File> librarySources = dependencyArtifacts.stream().flatMap ( art ->
-        resolveAll(new DefaultArtifact(art.getGroupId(),
-          art.getArtifactId(), "sources", "jar", art.getVersion())).stream()
-      ).filter(isJar).collect(toSet());
+        List<String> scalacOptions = getScalacOptions(project);
+        List<String> javacOptions = getJavacOptions(project);
 
-      Set<File> libraryDocs = dependencyArtifacts.stream().flatMap ( art ->
-        resolveAll(new DefaultArtifact(art.getGroupId(),
-          art.getArtifactId(), "javadoc", "jar", art.getVersion())).stream()
-      ).filter(isJar).collect(toSet());
+        // Several of our file-sets hard-code the extension as "jar". Ensure this is true.
+        Predicate<File> isJar = f -> f.getName().endsWith(".jar");
 
-      return new EnsimeProject(projectId, depends, compileFiles,
-        targets, scalacOptions, javacOptions,
-        libraryJars, librarySources,
-        libraryDocs);
+        Set<File> libraryJars = dependencyArtifacts.stream().flatMap ( art ->
+          resolveAll(new DefaultArtifact(art.getGroupId(),
+            art.getArtifactId(), "jar", art.getVersion())).stream()
+        ).filter(isJar).collect(toSet());
+
+        Set<File> librarySources = dependencyArtifacts.stream().flatMap ( art ->
+          resolveAll(new DefaultArtifact(art.getGroupId(),
+            art.getArtifactId(), "sources", "jar", art.getVersion())).stream()
+        ).filter(isJar).collect(toSet());
+
+        Set<File> libraryDocs = dependencyArtifacts.stream().flatMap ( art ->
+          resolveAll(new DefaultArtifact(art.getGroupId(),
+            art.getArtifactId(), "javadoc", "jar", art.getVersion())).stream()
+        ).filter(isJar).collect(toSet());
+
+        return new EnsimeProject(projectId, depends, compileFiles,
+          targets, scalacOptions, javacOptions,
+          libraryJars, librarySources,
+          libraryDocs);
+      });
     }).collect(toList());
   }
 
@@ -720,14 +754,4 @@ final public class EnsimeConfigGenerator {
     write(SExpFormatter.toSExp(generateConfig()).replaceAll("\r\n", "\n") + "\n", out);
   }
 
-
-  public static class Pair<F, S> {
-    public final F _1;
-    public final S _2;
-
-    public Pair(final F fst, final S snd) {
-      this._1 = fst;
-      this._2 = snd;
-    }
-  }
 }

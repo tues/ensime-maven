@@ -14,7 +14,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Dependency;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import org.ensime.maven.plugins.ensime.EnsimeConfigGenerator.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 
 public class EnsimeConfigGeneratorTest {
@@ -31,8 +31,8 @@ public class EnsimeConfigGeneratorTest {
             directDependencies, depMgmtDependencies, allDependencies, ensimeScalaVersion,
             defaultScalaVersion);
 
-        assertEquals(result._1, defaultScalaVersion);
-        assertEquals(result._2, Optional.empty());
+        assertEquals(result.getLeft(), defaultScalaVersion);
+        assertEquals(result.getRight(), Optional.empty());
     }
 
     @Test
@@ -76,8 +76,8 @@ public class EnsimeConfigGeneratorTest {
             directDependencies, depMgmtDependencies, allDependencies, ensimeScalaVersion,
             defaultScalaVersion);
 
-        assertEquals(result._1, "2.14.3");
-        assertEquals(result._2, Optional.empty());
+        assertEquals(result.getLeft(), "2.14.3");
+        assertEquals(result.getRight(), Optional.empty());
     }
 
     @Test
@@ -115,8 +115,8 @@ public class EnsimeConfigGeneratorTest {
             directDependencies, depMgmtDependencies, allDependencies, ensimeScalaVersion,
             defaultScalaVersion);
 
-        assertEquals(result._1, "2.15.4");
-        assertEquals(result._2, Optional.empty());
+        assertEquals(result.getLeft(), "2.15.4");
+        assertEquals(result.getRight(), Optional.empty());
     }
 
     @Test
@@ -142,8 +142,8 @@ public class EnsimeConfigGeneratorTest {
             directDependencies, depMgmtDependencies, allDependencies, ensimeScalaVersion,
             defaultScalaVersion);
 
-        assertEquals(result._1, "2.16.5");
-        assertEquals(result._2, Optional.empty());
+        assertEquals(result.getLeft(), "2.16.5");
+        assertEquals(result.getRight(), Optional.empty());
     }
 
     @Test
@@ -169,10 +169,10 @@ public class EnsimeConfigGeneratorTest {
             directDependencies, depMgmtDependencies, allDependencies, ensimeScalaVersion,
             defaultScalaVersion);
 
-        assertEquals(result._1, "2.16.5");
+        assertEquals(result.getLeft(), "2.16.5");
         String logMessage = "Multiple scala versions detected, using 2.16.5.  " +
             "Use -Densime.scala.version to override.";
-        assertEquals(result._2, Optional.of(logMessage));
+        assertEquals(result.getRight(), Optional.of(logMessage));
     }
 
     @Test
@@ -206,8 +206,8 @@ public class EnsimeConfigGeneratorTest {
 
         String logMessage = "Multiple scala versions detected, using 2.16.9.  " +
             "Use -Densime.scala.version to override.";
-        assertEquals(result._1, "2.16.9");
-        assertEquals(result._2, Optional.of(logMessage));
+        assertEquals(result.getLeft(), "2.16.9");
+        assertEquals(result.getRight(), Optional.of(logMessage));
     }
 
     
